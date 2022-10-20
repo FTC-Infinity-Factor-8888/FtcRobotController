@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -11,6 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Utilities.iRobot;
 
 public class PowerPlayRobot implements iRobot {
+    private final LinearOpMode creator;
+    private final HardwareMap hardwareMap;
+    public Telemetry telemetry;
+
     private DcMotorEx rfMotor;
     private DcMotorEx rrMotor;
     private DcMotorEx lfMotor;
@@ -27,6 +34,11 @@ public class PowerPlayRobot implements iRobot {
     private final double drivePositionPIDF1 = 2.0; // For distance >= 20"
     private final double drivePositionPIDF2 = 4.0; // For distances <= 20"
 
+    public PowerPlayRobot(LinearOpMode creator) {
+        this.creator = creator;
+        this.hardwareMap = creator.hardwareMap;
+        this.telemetry = creator.telemetry;
+    }
     @Override
     public void initHardware() {
 

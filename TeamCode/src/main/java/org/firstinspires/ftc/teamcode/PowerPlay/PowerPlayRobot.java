@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.Utilities.EmergencyStopException;
 import org.firstinspires.ftc.teamcode.Utilities.iRobot;
 
 public class PowerPlayRobot implements iRobot {
@@ -25,14 +27,30 @@ public class PowerPlayRobot implements iRobot {
     private BNO055IMU imu;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
+    @SuppressWarnings("FieldCanBeLocal")
     private final double MIN_ROBOT_SPEED = 0.40; // The minimum speed we can have our robot to drive at.
+    @SuppressWarnings("FieldCanBeLocal")
+    private final double correctionSpeed = 0.1;
 
     private final double wheelCircumferenceInInches = (96 / 25.4) * Math.PI;
+    // Suppression is due to lack of strafe code.
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int lfMotorMaxTps = 2655;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int rfMotorMaxTps = 2650;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int lrMotorMaxTps = 2610;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int rrMotorMaxTps = 2615;
+
     private final double ticksPerMotorRevolution = 530.3;
     private final double ticksPerInch = ticksPerMotorRevolution / wheelCircumferenceInInches;
 
     private final double drivePositionPIDF1 = 2.0; // For distance >= 20"
     private final double drivePositionPIDF2 = 4.0; // For distances <= 20"
+
+    private double delta;
+    private final double deltaThreshold = 1;
 
     public PowerPlayRobot(LinearOpMode creator) {
         this.creator = creator;
@@ -41,7 +59,61 @@ public class PowerPlayRobot implements iRobot {
     }
     @Override
     public void initHardware() {
+        lfMotor = hardwareMap.get(DcMotorEx.class, "LFMotor");
+        lrMotor = hardwareMap.get(DcMotorEx.class, "LRMotor");
+        rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
+        rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
+        lfMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        lrMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        initializeIMU();
+    }
+
+    /**
+     * Initializes IMU to give us the robots heading
+     */
+    private void initializeIMU() {
+        BNO055IMU.Parameters imuParameters;
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        telemetry.addData("Status", "Calibrating IMU...");
+        telemetry.update();
+        imuParameters = new BNO055IMU.Parameters();
+        imuParameters.mode = BNO055IMU.SensorMode.IMU;
+        imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        imuParameters.loggingEnabled = false;
+        imu.initialize(imuParameters);
+        telemetry.addData("Status", "Calibrating IMU...done");
+        telemetry.update();
+    }
+
+    /**
+     * Displays telemetry information on the Driver Hub
+     */
+    public void telemetryDashboard(@SuppressWarnings("unused") String msg) {
+        telemetry.addData("Heading", "Desired: %.0f, Current: %.0f, Delta: %.0f",
+                getIMUHeading(), getIMUHeading(), delta);
+
+        telemetry.addData("Target", "LF: %d, LR: %d, RF: %d, RR: %d",
+                lfMotor.getTargetPosition(), lrMotor.getTargetPosition(), rfMotor.getTargetPosition(), rrMotor.getTargetPosition());
+        telemetry.addData("Position", "LF: %d, LR: %d, RF: %d, RR: %d",
+                lfMotor.getCurrentPosition(), lrMotor.getCurrentPosition(), rfMotor.getCurrentPosition(), rrMotor.getCurrentPosition());
+        telemetry.addData("Power", "LF: %.1f, LR: %.1f, RF: %.1f, RR: %.1f",
+                lfMotor.getPower(), lrMotor.getPower(), rfMotor.getPower(), rrMotor.getPower());
+
+        double imuHeading = getIMUHeading();
+
+        telemetry.addData("IMU Heading", "%.0f", imuHeading);
+        telemetry.update();
     }
 
     /**
@@ -51,7 +123,7 @@ public class PowerPlayRobot implements iRobot {
      * @return Returns true if drive should exit, false if it may continue
      */
     public boolean driveAsserts(int direction, double accelSlope, double decelSlope) {
-        //we are checking to make sure it is doing what we think it should be
+        // We are checking to make sure it is doing what we think it should be
         if (direction == -1 && accelSlope > 0) {
             System.out.println("ERROR: Uh-oh, the robot tried to accelerate forwards when you said" +
                     "to go backwards. ");
@@ -85,11 +157,47 @@ public class PowerPlayRobot implements iRobot {
             return false;
         }
     }
+
+    private void driveDelta(double desiredHeading, double power) {
+        double currentHeading = getIMUHeading();
+        delta = normalizeHeading(desiredHeading - currentHeading);
+        double adjustSpeed = 0;
+
+
+        if (Math.abs(delta) > deltaThreshold) {
+            adjustSpeed = correctionSpeed;
+            if (delta > 0) {
+                adjustSpeed *= -1;
+            }
+        }
+
+        double leftSpeed = power + adjustSpeed;
+        double rightSpeed = power - adjustSpeed;
+
+        if (leftSpeed > MAX_ROBOT_SPEED) {
+            leftSpeed = MAX_ROBOT_SPEED;
+        }
+        if (rightSpeed > MAX_ROBOT_SPEED) {
+            rightSpeed = MAX_ROBOT_SPEED;
+        }
+        powerTheWheels(leftSpeed, leftSpeed, rightSpeed, rightSpeed);
+        System.out.println("DEBUG: Delta power (left): " + leftSpeed + " (right): " + rightSpeed);
+    }
+
+    /**
+     * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
+     */
     @Override
     public void drive (double distance) {
         drive(distance, MIN_ROBOT_SPEED, MAX_ROBOT_SPEED);
     }
 
+    /**
+     *
+     * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
+     * @param minSpeed Minimum speed the robot should drive at ALWAYS POSITIVE, Range: 0-1
+     * @param maxSpeed Maximum speed the robot should drive at ALWAYS POSITIVE, Range: 0-1
+     */
     public void drive(double distance, double minSpeed, double maxSpeed) {
 
         if(distance >= 20) {
@@ -225,7 +333,112 @@ public class PowerPlayRobot implements iRobot {
 
     @Override
     public void driveXYRB(double x, double y, double r, double b) {
+        /*
+            Because we use Mecanum wheels, we can move forward, rotate, and strafe.
+            Here, we are taking into account the direction each wheel should travel at in
+            order to move in the direction we want the robot to move.
+        */
+        // The normal speed our robot should be driving at.
+        double normalSpeed = 0.50;
 
+        // Left Front motor speed.
+        double lfSpeed = -((y - x - r) * normalSpeed);
+        // Right Front motor speed.
+        double rfSpeed = -((y + x + r) * normalSpeed);
+        // Left Rear motor speed.
+        double lrSpeed = -((y + x - r) * normalSpeed);
+        // Right Rear motor speed.
+        double rrSpeed = -((y - x + r) * normalSpeed);
+
+        // The acceleration speed set on normal speed.
+        double accelerationSpeed = MAX_ROBOT_SPEED - normalSpeed;
+        if (Math.abs(lfSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
+            if (Math.abs(lfSpeed) > normalSpeed) {
+                if (lfSpeed > 0) {
+                    lfSpeed = normalSpeed;
+                    lfMotor.setPower(lfSpeed + accelerationSpeed * b);
+                } else if (lfSpeed < 0) {
+                    lfSpeed = -normalSpeed;
+                    lfMotor.setPower(lfSpeed - accelerationSpeed * b);
+                } else {
+                    lfMotor.setPower(0);
+                }
+            }
+        } else {
+            if (lfSpeed > 0) {
+                lfMotor.setPower(lfSpeed + accelerationSpeed * b);
+            } else if (lfSpeed < 0) {
+                lfMotor.setPower(lfSpeed - accelerationSpeed * b);
+            } else {
+                lfMotor.setPower(0);
+            }
+        }
+
+        if (Math.abs(rfSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
+            if (Math.abs(rfSpeed) > normalSpeed) {
+                if (rfSpeed > 0) {
+                    rfSpeed = normalSpeed;
+                    rfMotor.setPower(rfSpeed + accelerationSpeed * b);
+                } else if (rfSpeed < 0) {
+                    rfSpeed = -normalSpeed;
+                    rfMotor.setPower(rfSpeed - accelerationSpeed * b);
+                } else {
+                    rfMotor.setPower(0);
+                }
+            }
+        } else {
+            if (rfSpeed > 0) {
+                rfMotor.setPower(rfSpeed + accelerationSpeed * b);
+            } else if (rfSpeed < 0) {
+                rfMotor.setPower(rfSpeed - accelerationSpeed * b);
+            } else {
+                rfMotor.setPower(0);
+            }
+        }
+
+        if (Math.abs(lrSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
+            if (Math.abs(lrSpeed) > normalSpeed) {
+                if (lrSpeed > 0) {
+                    lrSpeed = normalSpeed;
+                    lrMotor.setPower(lrSpeed + accelerationSpeed * b);
+                } else if (lrSpeed < 0) {
+                    lrSpeed = -normalSpeed;
+                    lrMotor.setPower(lrSpeed - accelerationSpeed * b);
+                } else {
+                    lrMotor.setPower(0);
+                }
+            }
+        } else {
+            if (lrSpeed > 0) {
+                lrMotor.setPower(lrSpeed + accelerationSpeed * b);
+            } else if (lrSpeed < 0) {
+                lrMotor.setPower(lrSpeed - accelerationSpeed * b);
+            } else {
+                lrMotor.setPower(0);
+            }
+        }
+
+        if (Math.abs(rrSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
+            if (Math.abs(rrSpeed) > normalSpeed) {
+                if (rrSpeed > 0) {
+                    rrSpeed = normalSpeed;
+                    rrMotor.setPower(rrSpeed + accelerationSpeed * b);
+                } else if (rrSpeed < 0) {
+                    rrSpeed = -normalSpeed;
+                    rrMotor.setPower(rrSpeed - accelerationSpeed * b);
+                } else {
+                    rrMotor.setPower(0);
+                }
+            }
+        } else {
+            if (rrSpeed > 0) {
+                rrMotor.setPower(rrSpeed + accelerationSpeed * b);
+            } else if (rrSpeed < 0) {
+                rrMotor.setPower(rrSpeed - accelerationSpeed * b);
+            } else {
+                rrMotor.setPower(0);
+            }
+        }
     }
 
     @Override
@@ -279,12 +492,88 @@ public class PowerPlayRobot implements iRobot {
         setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
+    /**
+     * Powers all 4 of the robot's wheels.
+     * If the motor mode is set to RUN_USING_ENCODER, then PTW sets the velocity.
+     * If the motor mode is set to RUN_TO_POSITION, then PTW sets the power.
+     * <p>
+     * The robot is only capable of accepting speeds of -1 --> 1.
+     * If you give a value out of that range, PTW will scale down the numbers appropriately.
+     *
+     * @param lfPower power/velocity applied to the left front wheel.
+     * @param lrPower power/velocity applied to the left rear wheel.
+     * @param rfPower power/velocity applied to the right front wheel.
+     * @param rrPower power/velocity applied to the right rear wheel.
+     */
+    private void powerTheWheels(double lfPower, double lrPower, double rfPower, double rrPower) {
+        double leftMax = Math.max(Math.abs(lfPower), Math.abs(lrPower));
+        double rightMax = Math.max(Math.abs(rfPower), Math.abs(rrPower));
+        double max = Math.max(leftMax, rightMax);
+
+        if (max > MAX_ROBOT_SPEED) {
+            lfPower /= max;
+            lrPower /= max;
+            rfPower /= max;
+            rrPower /= max;
+        }
+
+        if (lfMotor.getMode().equals(DcMotor.RunMode.RUN_USING_ENCODER)) {
+            double lfVelocity = lfPower * lfMotorMaxTps;
+            double lrVelocity = lrPower * lrMotorMaxTps;
+            double rfVelocity = rfPower * rfMotorMaxTps;
+            double rrVelocity = rrPower * rrMotorMaxTps;
+
+            if (creator.opModeIsActive()) {
+
+                lfMotor.setVelocity(lfVelocity);
+                lrMotor.setVelocity(lrVelocity);
+                rfMotor.setVelocity(rfVelocity);
+                rrMotor.setVelocity(rrVelocity);
+            } else {
+                throw new EmergencyStopException("PowerTheWheels");
+            }
+        } else {
+            // We assume that we will be using RUN_TO_POSITION mode.
+            if (creator.opModeIsActive()) {
+                lfMotor.setPower(lfPower);
+                lrMotor.setPower(lrPower);
+                rfMotor.setPower(rfPower);
+                rrMotor.setPower(rrPower);
+            } else {
+                throw new EmergencyStopException("PowerTheWheels");
+            }
+        }
+    }
 
     @Override
     public double getIMUHeading(){
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX,
                 AngleUnit.DEGREES);
         return angles.firstAngle;
+    }
+
+    /**
+     * @return returns the distance the robot has traveled in inches
+     */
+    private double getMotorPosition() {
+        double lfPosition = lfMotor.getCurrentPosition();
+        double rfPosition = rfMotor.getCurrentPosition();
+        double lrPosition = lrMotor.getCurrentPosition();
+        double rrPosition = rrMotor.getCurrentPosition();
+
+        double motorPositionAverage = (lfPosition + rfPosition + lrPosition + rrPosition) / 4;
+
+        return motorPositionAverage / ticksPerInch;
+    }
+
+    private double powerPercentage(double delta) {
+        double powerPercent = -0.000027 * Math.pow(Math.abs(delta) - 180, 2) + 1;
+        if (powerPercent > 1 || powerPercent < 0) {
+            System.out.println("*** WARNING! POWER PERCENT IS OUT OF RANGE: delta = " + delta + ", " +
+                    "powerPercent = " + powerPercent + " ***");
+        }
+
+        return powerPercent;
     }
 
     @Override

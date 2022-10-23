@@ -332,15 +332,26 @@ public class PowerPlayRobot implements iRobot {
     }
 
     @Override
+    public void driveTank(double l, double r, double b) {
+        // The normal speed the robot should travel at
+        double normalSpeed = 0.50;
+
+        lfMotor.setPower(l * normalSpeed);
+        rfMotor.setPower(r * normalSpeed);
+        lrMotor.setPower(l * normalSpeed);
+        rrMotor.setPower(r * normalSpeed);
+    }
+
+    @Override
     public void driveXYRB(double x, double y, double r, double b) {
+        // The normal speed our robot should be driving at.
+        double normalSpeed = 0.50;
+
         /*
             Because we use Mecanum wheels, we can move forward, rotate, and strafe.
             Here, we are taking into account the direction each wheel should travel at in
             order to move in the direction we want the robot to move.
         */
-        // The normal speed our robot should be driving at.
-        double normalSpeed = 0.50;
-
         // Left Front motor speed.
         double lfSpeed = -((y - x - r) * normalSpeed);
         // Right Front motor speed.
@@ -364,7 +375,8 @@ public class PowerPlayRobot implements iRobot {
                     lfMotor.setPower(0);
                 }
             }
-        } else {
+        }
+        else {
             if (lfSpeed > 0) {
                 lfMotor.setPower(lfSpeed + accelerationSpeed * b);
             } else if (lfSpeed < 0) {
@@ -386,7 +398,8 @@ public class PowerPlayRobot implements iRobot {
                     rfMotor.setPower(0);
                 }
             }
-        } else {
+        }
+        else {
             if (rfSpeed > 0) {
                 rfMotor.setPower(rfSpeed + accelerationSpeed * b);
             } else if (rfSpeed < 0) {
@@ -408,7 +421,8 @@ public class PowerPlayRobot implements iRobot {
                     lrMotor.setPower(0);
                 }
             }
-        } else {
+        }
+        else {
             if (lrSpeed > 0) {
                 lrMotor.setPower(lrSpeed + accelerationSpeed * b);
             } else if (lrSpeed < 0) {
@@ -430,7 +444,8 @@ public class PowerPlayRobot implements iRobot {
                     rrMotor.setPower(0);
                 }
             }
-        } else {
+        }
+        else {
             if (rrSpeed > 0) {
                 rrMotor.setPower(rrSpeed + accelerationSpeed * b);
             } else if (rrSpeed < 0) {

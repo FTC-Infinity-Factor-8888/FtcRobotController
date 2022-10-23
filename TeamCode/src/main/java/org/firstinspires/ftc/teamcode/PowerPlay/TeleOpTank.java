@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "TeleOpMain")
-public class TeleOpMain extends LinearOpMode {
+public class TeleOpTank extends LinearOpMode {
     PowerPlayRobot r2;
 
     //This function is executed when this Op Mode is selected from the Driver Station.
@@ -12,7 +12,7 @@ public class TeleOpMain extends LinearOpMode {
     public void runOpMode() {
         // Put initialization blocks here:
 
-        // Declaring the buttons that may quickly change:
+        // Declaring the boolean buttons that may quickly change:
         // Currently no such buttons
 
         double accelerator;
@@ -30,14 +30,13 @@ public class TeleOpMain extends LinearOpMode {
             while (opModeIsActive()) {
                 // Put loop blocks here.
 
-                double forwardInput = gamepad1.left_stick_y; // Controls for moving back and forward.
-                double strafeInput = gamepad1.left_stick_x; // Controls for strafing.
-                double rotateInput = gamepad1.right_stick_x; // Controls for pivoting.
+                double leftInput = gamepad1.left_stick_y;
+                double rightInput = gamepad1.right_stick_y;
 
                 // Controls to allow our robot to reach speeds up to maxSpeed.
-                accelerator = gamepad1.right_trigger;
+                accelerator = gamepad1.right_trigger; // Currently not functional
 
-                r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
+                r2.driveTank(leftInput, rightInput, accelerator);
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */

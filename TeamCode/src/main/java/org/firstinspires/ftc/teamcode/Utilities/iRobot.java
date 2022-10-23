@@ -49,8 +49,16 @@ public interface iRobot {
     void driveXYRB(double x, double y, double r, double b);
 
     /**
-     * Gets the IMU Heading for drive
+     *
+     * @param l The speed of the left motors
+     * @param r The speed of the right motors
+     * @param b Boost - To increase the normal speed of the robot up to the Maximum speed.
      */
+    void driveTank(double l, double r, double b);
+
+        /**
+         * Gets the IMU Heading for drive
+         */
     double getIMUHeading();
     /**
      * driveStop is a TeleOp method that stops the robot driving by stopping the wheels

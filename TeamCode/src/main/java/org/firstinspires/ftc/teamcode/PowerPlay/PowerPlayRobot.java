@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevSPARKMini;
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.configuration.annotations.DigitalIoDeviceType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -24,7 +28,16 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx rrMotor;
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
+
+    private Servo liftServo;
+    private Servo rollerServo;
+    private Servo grabberServo;
+
+    private RevTouchSensor lowerLimitSwitch;
     private BNO055IMU imu;
+
+    public final Servo.Direction UP = Servo.Direction.FORWARD;
+    public final Servo.Direction DOWN = Servo.Direction.REVERSE;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -65,6 +78,12 @@ public class PowerPlayRobot implements iRobot {
         lrMotor = hardwareMap.get(DcMotorEx.class, "LRMotor");
         rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
+
+        liftServo = hardwareMap.get(Servo.class, "LiftServo");
+        rollerServo = hardwareMap.get(Servo.class, "RollerServo");
+        grabberServo = hardwareMap.get(Servo.class, "GrabberServo");
+
+        lowerLimitSwitch = hardwareMap.get(RevTouchSensor.class, "LowerLimitSwitch");
 
         lfMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         lrMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -184,6 +203,19 @@ public class PowerPlayRobot implements iRobot {
         }
         powerTheWheels(leftSpeed, leftSpeed, rightSpeed, rightSpeed);
         System.out.println("DEBUG: Delta power (left): " + leftSpeed + " (right): " + rightSpeed);
+    }
+
+    public void liftMotor(Servo.Direction direction) {
+        if (lowerLimitSwitch.isPressed() && direction != UP) {
+            liftMotorStop();
+            return;
+        }
+        liftServo.setDirection(direction);
+        liftServo.setPosition(0.3);
+    }
+
+    public void liftMotorStop() {
+        liftServo.setPosition(0.0);
     }
 
     /**

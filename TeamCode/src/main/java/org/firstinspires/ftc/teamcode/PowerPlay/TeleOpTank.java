@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "TeleOpMain")
+@TeleOp(name = "TeleOpTank")
 public class TeleOpTank extends LinearOpMode {
     PowerPlayRobot r2;
 

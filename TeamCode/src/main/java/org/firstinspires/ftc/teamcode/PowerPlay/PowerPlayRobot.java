@@ -12,8 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.Utilities.EmergencyStopException;
-import org.firstinspires.ftc.teamcode.Utilities.iRobot;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 
 public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
@@ -33,6 +33,7 @@ public class PowerPlayRobot implements iRobot {
     private final double correctionSpeed = 0.1;
 
     private final double wheelCircumferenceInInches = (96 / 25.4) * Math.PI;
+    // TODO: PIDF values must be updated to work for this year.
     // Suppression is due to lack of strafe code.
     @SuppressWarnings("FieldCanBeLocal")
     private final int lfMotorMaxTps = 2655;
@@ -46,6 +47,7 @@ public class PowerPlayRobot implements iRobot {
     private final double ticksPerMotorRevolution = 530.3;
     private final double ticksPerInch = ticksPerMotorRevolution / wheelCircumferenceInInches;
 
+    // TODO: PIDF values must be updated to work for this year.
     private final double drivePositionPIDF1 = 2.0; // For distance >= 20"
     private final double drivePositionPIDF2 = 4.0; // For distances <= 20"
 
@@ -208,6 +210,7 @@ public class PowerPlayRobot implements iRobot {
         }
 
         double desiredHeading = getIMUHeading();
+
         if (distance == 0) {
             System.out.println("Success! The robot did not move. The distance entered was 0.");
             return;
@@ -224,14 +227,16 @@ public class PowerPlayRobot implements iRobot {
         double minPower;
         if (direction == -1) {
             minPower = -1 * (minSpeed);
-        } else {
+        }
+        else {
             minPower = minSpeed;
         }
 
         double maxPower;
         if (direction == -1) {
             maxPower = -1 * (maxSpeed);
-        } else {
+        }
+        else {
             maxPower = maxSpeed;
         }
 

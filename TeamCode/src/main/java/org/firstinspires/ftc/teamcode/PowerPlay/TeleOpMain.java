@@ -37,7 +37,7 @@ public class TeleOpMain extends LinearOpMode {
                 // Controls to allow our robot to reach speeds up to maxSpeed.
                 accelerator = gamepad1.right_trigger;
 
-                r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
+                r2.driveXYRB(strafeInput, -forwardInput, rotateInput, accelerator);
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */

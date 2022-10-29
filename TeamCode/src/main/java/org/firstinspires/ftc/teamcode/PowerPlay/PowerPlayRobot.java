@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevSPARKMini;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -29,15 +30,15 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    private Servo liftServo;
+    private CRServo liftServo;
     private Servo rollerServo;
     private Servo grabberServo;
 
     private RevTouchSensor lowerLimitSwitch;
     private BNO055IMU imu;
 
-    public final Servo.Direction UP = Servo.Direction.FORWARD;
-    public final Servo.Direction DOWN = Servo.Direction.REVERSE;
+    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.FORWARD;
+    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.REVERSE;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -79,7 +80,7 @@ public class PowerPlayRobot implements iRobot {
         rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
-        liftServo = hardwareMap.get(Servo.class, "LiftServo");
+        liftServo = hardwareMap.get(CRServo.class, "LiftServo");
         rollerServo = hardwareMap.get(Servo.class, "RollerServo");
         grabberServo = hardwareMap.get(Servo.class, "GrabberServo");
 
@@ -205,17 +206,28 @@ public class PowerPlayRobot implements iRobot {
         System.out.println("DEBUG: Delta power (left): " + leftSpeed + " (right): " + rightSpeed);
     }
 
-    public void liftMotor(Servo.Direction direction) {
-        if (lowerLimitSwitch.isPressed() && direction != UP) {
-            liftMotorStop();
-            return;
-        }
+    public void liftMotor(DcMotorSimple.Direction direction) {
+//        if (lowerLimitSwitch.isPressed() && direction != UP) {
+//            liftMotorStop();
+//            return;
+//        }
         liftServo.setDirection(direction);
-        liftServo.setPosition(0.3);
+        liftServo.setPower(0.3);
     }
 
     public void liftMotorStop() {
-        liftServo.setPosition(0.0);
+        liftServo.setPower(0);
+    }
+
+    public void grabberMotor(boolean isPressed) {
+        if (isPressed) {
+            grabberServo.setDirection(Servo.Direction.REVERSE);
+            grabberServo.setPosition(0.5);
+        }
+        else {
+            grabberServo.setDirection(Servo.Direction.FORWARD);
+            grabberServo.setPosition(0.25);
+        }
     }
 
     /**

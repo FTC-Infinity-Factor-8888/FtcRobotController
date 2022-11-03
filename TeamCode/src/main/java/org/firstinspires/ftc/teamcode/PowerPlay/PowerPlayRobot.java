@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.RevSPARKMini;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -10,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.configuration.annotations.DigitalIoDeviceType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -29,6 +27,8 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx rrMotor;
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
+
+    private DcMotorEx testMotor;
 
     private CRServo liftServo;
     private Servo rollerServo;
@@ -99,6 +99,14 @@ public class PowerPlayRobot implements iRobot {
         initializeIMU();
     }
 
+    @Override
+    public void initTestHardware() {
+        testMotor = hardwareMap.get(DcMotorEx.class, "TestMotor");
+        setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        testMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
     /**
      * Initializes IMU to give us the robots heading
      */
@@ -136,6 +144,10 @@ public class PowerPlayRobot implements iRobot {
 
         telemetry.addData("IMU Heading", "%.0f", imuHeading);
         telemetry.update();
+    }
+
+    public void testTelemetryDashboard(String msg) {
+        telemetry.addData("Position", "Motor: %d", testMotor.getCurrentPosition());
     }
 
     /**
@@ -213,6 +225,7 @@ public class PowerPlayRobot implements iRobot {
 //        }
         liftServo.setDirection(direction);
         liftServo.setPower(0.3);
+        testTelemetryDashboard("");
     }
 
     public void liftMotorStop() {

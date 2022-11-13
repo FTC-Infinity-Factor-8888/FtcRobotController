@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.PowerPlay.PowerPlayRobot;
 
-@TeleOp(name = "TeleOpMain")
+@TeleOp(name = "TeleOpTest")
 public class TeleOpTest extends LinearOpMode {
     PowerPlayRobot r2;
 

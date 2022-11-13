@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -35,6 +36,7 @@ public class PowerPlayRobot implements iRobot {
     private Servo grabberServo;
 
     private RevTouchSensor lowerLimitSwitch;
+    private AnalogInput potentiometer;
     private BNO055IMU imu;
 
     public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.FORWARD;
@@ -85,6 +87,7 @@ public class PowerPlayRobot implements iRobot {
         grabberServo = hardwareMap.get(Servo.class, "GrabberServo");
 
         lowerLimitSwitch = hardwareMap.get(RevTouchSensor.class, "LowerLimitSwitch");
+        potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
 
         lfMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         lrMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -124,6 +127,12 @@ public class PowerPlayRobot implements iRobot {
         imu.initialize(imuParameters);
         telemetry.addData("Status", "Calibrating IMU...done");
         telemetry.update();
+    }
+
+    public double getPotentiometer() {
+        double voltage = potentiometer.getVoltage();
+        telemetry.addData("Potentiometer", voltage);
+        return voltage;
     }
 
     /**

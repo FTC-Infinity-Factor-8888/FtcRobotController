@@ -44,27 +44,28 @@ public class TeleOpMain extends LinearOpMode {
 
                 r2.driveXYRB(-strafeInput, -forwardInput, rotateInput, accelerator);
 
-                liftUp = gamepad1.right_bumper;
-                liftDown = gamepad1.left_bumper;
-
-                if (liftUp && !liftDown) {
-                    r2.liftMotor(r2.UP);
-                }
-                else if (!liftUp && liftDown) {
-                    r2.liftMotor(r2.DOWN);
-                }
-                else {
-                    r2.liftMotorStop();
-                }
-
-//                grabber = gamepad1.x;
-//                if (priorGrabber != grabber) {
-//                    r2.grabberMotor(grabber);
+//                liftUp = gamepad1.right_bumper;
+//                liftDown = gamepad1.left_bumper;
+//
+//                if (liftUp && !liftDown) {
+//                    r2.liftMotor(r2.UP);
 //                }
+//                else if (!liftUp && liftDown) {
+//                    r2.liftMotor(r2.DOWN);
+//                }
+//                else {
+//                    r2.liftMotorStop();
+//                }
+
+                grabber = gamepad1.x;
+                if (priorGrabber != grabber) {
+                    r2.grabberMotor(grabber);
+                }
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
                 telemetry.addData("Accelerator", accelerator);
+                r2.getPotentiometer();
                 telemetry.update();
             }
         }

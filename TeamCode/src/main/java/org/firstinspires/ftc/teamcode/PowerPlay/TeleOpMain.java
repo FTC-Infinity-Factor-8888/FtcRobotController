@@ -42,7 +42,7 @@ public class TeleOpMain extends LinearOpMode {
                 // Controls to allow our robot to reach speeds up to maxSpeed.
                 accelerator = gamepad1.right_trigger;
 
-                r2.driveXYRB(-strafeInput, -forwardInput, rotateInput, accelerator);
+                r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
 
 //                liftUp = gamepad1.right_bumper;
 //                liftDown = gamepad1.left_bumper;

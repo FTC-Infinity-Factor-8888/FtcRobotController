@@ -29,18 +29,15 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    private DcMotorEx testMotor;
-
     private CRServo liftServo;
-    private Servo rollerServo;
-    private Servo grabberServo;
+    private CRServo intakeServo;
 
     private RevTouchSensor lowerLimitSwitch;
     private AnalogInput potentiometer;
     private BNO055IMU imu;
 
-    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.FORWARD;
-    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.REVERSE;
+    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.REVERSE;
+    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.FORWARD;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -83,8 +80,7 @@ public class PowerPlayRobot implements iRobot {
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
         liftServo = hardwareMap.get(CRServo.class, "LiftServo");
-        rollerServo = hardwareMap.get(Servo.class, "RollerServo");
-        grabberServo = hardwareMap.get(Servo.class, "GrabberServo");
+        intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
 
         lowerLimitSwitch = hardwareMap.get(RevTouchSensor.class, "LowerLimitSwitch");
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
@@ -100,14 +96,6 @@ public class PowerPlayRobot implements iRobot {
         rrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         initializeIMU();
-    }
-
-    @Override
-    public void initTestHardware() {
-        testMotor = hardwareMap.get(DcMotorEx.class, "TestMotor");
-        setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        testMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     /**
@@ -153,10 +141,6 @@ public class PowerPlayRobot implements iRobot {
 
         telemetry.addData("IMU Heading", "%.0f", imuHeading);
         telemetry.update();
-    }
-
-    public void testTelemetryDashboard(String msg) {
-        telemetry.addData("Position", "Motor: %d", testMotor.getCurrentPosition());
     }
 
     /**
@@ -233,24 +217,21 @@ public class PowerPlayRobot implements iRobot {
 //            return;
 //        }
         liftServo.setDirection(direction);
-        liftServo.setPower(0.3);
-        testTelemetryDashboard("");
+        liftServo.setPower(1.00);
+        telemetry.addData("LiftPower", liftServo.getPower());
     }
 
     public void liftMotorStop() {
         liftServo.setPower(0);
     }
 
-    public void grabberMotor(boolean isPressed) {
-        if (isPressed) {
-            grabberServo.setDirection(Servo.Direction.REVERSE);
-            grabberServo.setPosition(0.5);
-        }
-        else {
-            grabberServo.setDirection(Servo.Direction.FORWARD);
-            grabberServo.setPosition(0.25);
-        }
+    public void intakeMotor(DcMotorSimple.Direction direction) {
+        intakeServo.setDirection(direction);
+        intakeServo.setPower(0.60);
+        telemetry.addData("IntakePower", intakeServo.getPower());
     }
+
+    public void intakeStop() {intakeServo.setPower(0);}
 
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
@@ -416,7 +397,7 @@ public class PowerPlayRobot implements iRobot {
     @Override
     public void driveXYRB(double x, double y, double r, double b) {
         // The normal speed our robot should be driving at.
-        double normalSpeed = 0.50;
+        double normalSpeed = 0.65;
 
         /*
             Because we use Mecanum wheels, we can move forward, rotate, and strafe.

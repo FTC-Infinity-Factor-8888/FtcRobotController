@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "TeleOpMain")
@@ -15,7 +16,8 @@ public class TeleOpMain extends LinearOpMode {
         // Declaring the buttons that may quickly change:
         boolean liftUp;
         boolean liftDown;
-        boolean grabber;
+        boolean intake;
+        boolean outtake;
 
         double forwardInput;
         double strafeInput;
@@ -23,7 +25,7 @@ public class TeleOpMain extends LinearOpMode {
         double accelerator;
 
         // Declaring the former values of the buttons, so we can tell if they changed.
-        boolean priorGrabber = false;
+        // Note: Currently no such variables
 
         // r2 has arrived.
         r2 = new PowerPlayRobot(this);
@@ -44,27 +46,39 @@ public class TeleOpMain extends LinearOpMode {
 
                 r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
 
-//                liftUp = gamepad1.right_bumper;
-//                liftDown = gamepad1.left_bumper;
-//
-//                if (liftUp && !liftDown) {
-//                    r2.liftMotor(r2.UP);
-//                }
-//                else if (!liftUp && liftDown) {
-//                    r2.liftMotor(r2.DOWN);
-//                }
-//                else {
-//                    r2.liftMotorStop();
-//                }
+                /*
+                TODO: Reenable the code after the motors have been added.
+                liftUp = gamepad2.right_bumper;
+                liftDown = gamepad2.left_bumper;
 
-                grabber = gamepad1.x;
-                if (priorGrabber != grabber) {
-                    r2.grabberMotor(grabber);
+                if (liftUp && !liftDown) {
+                    r2.liftMotor(r2.UP);
+                }
+                else if (!liftUp && liftDown) {
+                    r2.liftMotor(r2.DOWN);
+                }
+                else {
+                    r2.liftMotorStop();
+                }
+                */
+
+                intake = gamepad2.a;
+                outtake = gamepad2.y;
+                if (intake && !outtake) {
+                    r2.intakeMotor(DcMotorSimple.Direction.FORWARD);
+                }
+                else if (!intake && outtake) {
+                    r2.intakeMotor(DcMotorSimple.Direction.REVERSE);
+                }
+                else {
+                    r2.intakeStop();
                 }
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
                 telemetry.addData("Accelerator", accelerator);
+                telemetry.addData("Y", gamepad2.y);
+                telemetry.addData("A", gamepad2.a);
                 r2.getPotentiometer();
                 telemetry.update();
             }

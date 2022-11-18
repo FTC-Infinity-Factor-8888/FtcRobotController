@@ -12,8 +12,6 @@ public interface iRobot {
      */
     void initHardware();
 
-    void initTestHardware();
-
     /**
      * drive is a Autonomous method that moves the robot forwards or backwards ONLY.
      * All inputs are relative to the front of the robot.

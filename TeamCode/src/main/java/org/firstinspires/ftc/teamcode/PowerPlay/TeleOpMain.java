@@ -46,8 +46,6 @@ public class TeleOpMain extends LinearOpMode {
 
                 r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
 
-                /*
-                TODO: Reenable the code after the motors have been added.
                 liftUp = gamepad2.right_bumper;
                 liftDown = gamepad2.left_bumper;
 
@@ -60,7 +58,6 @@ public class TeleOpMain extends LinearOpMode {
                 else {
                     r2.liftMotorStop();
                 }
-                */
 
                 intake = gamepad2.a;
                 outtake = gamepad2.y;

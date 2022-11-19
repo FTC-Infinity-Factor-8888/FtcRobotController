@@ -506,6 +506,10 @@ public class PowerPlayRobot implements iRobot {
                 rrMotor.setPower(0);
             }
         }
+        telemetry.addData("LF", lfMotor.getPower());
+        telemetry.addData("LR", lrMotor.getPower());
+        telemetry.addData("RF", rfMotor.getPower());
+        telemetry.addData("RR", rrMotor.getPower());
     }
 
     @Override

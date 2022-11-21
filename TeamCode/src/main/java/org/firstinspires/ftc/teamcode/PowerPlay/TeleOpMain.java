@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "TeleOpMain")
 public class TeleOpMain extends LinearOpMode {
@@ -19,10 +18,16 @@ public class TeleOpMain extends LinearOpMode {
         boolean intake;
         boolean outtake;
 
+        boolean lb;
+        boolean rb;
+        boolean y;
+        boolean a;
+
         double forwardInput;
         double strafeInput;
         double rotateInput;
         double accelerator;
+        int direction = 1;
 
         // Declaring the former values of the buttons, so we can tell if they changed.
         // Note: Currently no such variables
@@ -36,9 +41,21 @@ public class TeleOpMain extends LinearOpMode {
             // Put run blocks here.
             while (opModeIsActive()) {
                 // Put loop blocks here.
+                lb = gamepad1.left_bumper;
+                rb = gamepad1.right_bumper;
+                y = gamepad1.y;
+                a = gamepad1.a;
+                if (lb && rb) {
+                    if (y) {
+                        direction = 1;
+                    }
+                    else if (a) {
+                        direction = -1;
+                    }
+                }
 
-                forwardInput = gamepad1.left_stick_y; // Controls for moving back and forward.
-                strafeInput = gamepad1.left_stick_x; // Controls for strafing.
+                forwardInput = gamepad1.left_stick_y * direction; // Controls for moving back and forward.
+                strafeInput = gamepad1.left_stick_x * direction; // Controls for strafing.
                 rotateInput = gamepad1.right_stick_x; // Controls for pivoting.
 
                 // Controls to allow our robot to reach speeds up to maxSpeed.
@@ -76,6 +93,7 @@ public class TeleOpMain extends LinearOpMode {
                 telemetry.addData("Accelerator", accelerator);
                 telemetry.addData("Y", gamepad2.y);
                 telemetry.addData("A", gamepad2.a);
+                telemetry.addData("Drive mode", direction);
                 r2.getPotentiometer();
                 telemetry.update();
             }

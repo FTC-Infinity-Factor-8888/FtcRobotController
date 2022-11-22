@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
+
 @TeleOp(name = "TeleOpMain")
 public class TeleOpMain extends LinearOpMode {
     PowerPlayRobot r2;
@@ -48,9 +50,11 @@ public class TeleOpMain extends LinearOpMode {
                 if (lb && rb) {
                     if (y) {
                         direction = 1;
+                        r2.setLEDColor(Color.RED);
                     }
                     else if (a) {
                         direction = -1;
+                        r2.setLEDColor(Color.GREEN);
                     }
                 }
 
@@ -91,8 +95,6 @@ public class TeleOpMain extends LinearOpMode {
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
                 telemetry.addData("Accelerator", accelerator);
-                telemetry.addData("Y", gamepad2.y);
-                telemetry.addData("A", gamepad2.a);
                 telemetry.addData("Drive mode", direction);
                 r2.getPotentiometer();
                 telemetry.update();

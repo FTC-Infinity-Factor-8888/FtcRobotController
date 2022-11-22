@@ -1,21 +1,21 @@
 package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 
@@ -32,9 +32,10 @@ public class PowerPlayRobot implements iRobot {
     private CRServo liftServo;
     private CRServo intakeServo;
 
-    private RevTouchSensor lowerLimitSwitch;
     private AnalogInput potentiometer;
     private BNO055IMU imu;
+    private DigitalChannel greenLED;
+    private DigitalChannel redLED;
 
     public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.REVERSE;
     public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.FORWARD;
@@ -82,11 +83,15 @@ public class PowerPlayRobot implements iRobot {
         liftServo = hardwareMap.get(CRServo.class, "LiftServo");
         intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
 
-        lowerLimitSwitch = hardwareMap.get(RevTouchSensor.class, "LowerLimitSwitch");
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
+        greenLED = hardwareMap.get(DigitalChannel.class, "GreenLED");
+        redLED = hardwareMap.get(DigitalChannel.class, "RedLED");
 
         lfMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         lrMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        greenLED.setMode(DigitalChannel.Mode.OUTPUT);
+        redLED.setMode(DigitalChannel.Mode.OUTPUT);
 
         setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -212,10 +217,6 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(DcMotorSimple.Direction direction) {
-//        if (lowerLimitSwitch.isPressed() && direction != UP) {
-//            liftMotorStop();
-//            return;
-//        }
         liftServo.setDirection(direction);
         liftServo.setPower(1.00);
         telemetry.addData("LiftPower", liftServo.getPower());
@@ -392,6 +393,21 @@ public class PowerPlayRobot implements iRobot {
         rfMotor.setPower(r * normalSpeed);
         lrMotor.setPower(l * normalSpeed);
         rrMotor.setPower(r * normalSpeed);
+    }
+
+    public void setLEDColor(Color color) {
+        if (color == Color.GREEN) {
+            redLED.setState(false);
+            greenLED.setState(true);
+        }
+        else if (color == Color.RED) {
+            redLED.setState(true);
+            greenLED.setState(false);
+        }
+        else if (color == Color.YELLOW) {
+            redLED.setState(true);
+            greenLED.setState(true);
+        }
     }
 
     @Override

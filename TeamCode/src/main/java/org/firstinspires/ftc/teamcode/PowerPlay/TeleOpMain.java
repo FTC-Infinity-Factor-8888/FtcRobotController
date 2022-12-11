@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 
 @TeleOp(name = "TeleOpMain")
 public class TeleOpMain extends LinearOpMode {
@@ -50,11 +51,13 @@ public class TeleOpMain extends LinearOpMode {
                 if (lb && rb) {
                     if (y) {
                         direction = 1;
-                        r2.setLEDColor(Color.RED);
+                        r2.setLEDColor(LED.FRONT, Color.GREEN);
+                        r2.setLEDColor(LED.REAR, Color.RED);
                     }
                     else if (a) {
                         direction = -1;
-                        r2.setLEDColor(Color.GREEN);
+                        r2.setLEDColor(LED.FRONT, Color.RED);
+                        r2.setLEDColor(LED.REAR, Color.GREEN);
                     }
                 }
 

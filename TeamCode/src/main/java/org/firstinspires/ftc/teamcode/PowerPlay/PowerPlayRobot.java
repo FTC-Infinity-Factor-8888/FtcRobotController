@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 
 public class PowerPlayRobot implements iRobot {
@@ -34,8 +35,10 @@ public class PowerPlayRobot implements iRobot {
 
     private AnalogInput potentiometer;
     private BNO055IMU imu;
-    private DigitalChannel greenLED;
-    private DigitalChannel redLED;
+    private DigitalChannel frontGreenLED;
+    private DigitalChannel frontRedLED;
+    private DigitalChannel rearGreenLED;
+    private DigitalChannel rearRedLED;
 
     public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.REVERSE;
     public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.FORWARD;
@@ -84,14 +87,18 @@ public class PowerPlayRobot implements iRobot {
         intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
 
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
-        greenLED = hardwareMap.get(DigitalChannel.class, "GreenLED");
-        redLED = hardwareMap.get(DigitalChannel.class, "RedLED");
+        frontGreenLED = hardwareMap.get(DigitalChannel.class, "FrontGreenLED");
+        frontRedLED = hardwareMap.get(DigitalChannel.class, "FrontRedLED");
+        rearGreenLED = hardwareMap.get(DigitalChannel.class, "RearGreenLED");
+        rearRedLED = hardwareMap.get(DigitalChannel.class, "RearRedLED");
 
         lfMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         lrMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        greenLED.setMode(DigitalChannel.Mode.OUTPUT);
-        redLED.setMode(DigitalChannel.Mode.OUTPUT);
+        frontGreenLED.setMode(DigitalChannel.Mode.OUTPUT);
+        frontRedLED.setMode(DigitalChannel.Mode.OUTPUT);
+        rearGreenLED.setMode(DigitalChannel.Mode.OUTPUT);
+        rearRedLED.setMode(DigitalChannel.Mode.OUTPUT);
 
         setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -100,6 +107,8 @@ public class PowerPlayRobot implements iRobot {
         rfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        setLEDColor(LED.FRONT, Color.GREEN);
+        setLEDColor(LED.REAR, Color.RED);
         initializeIMU();
     }
 
@@ -395,18 +404,26 @@ public class PowerPlayRobot implements iRobot {
         rrMotor.setPower(r * normalSpeed);
     }
 
-    public void setLEDColor(Color color) {
-        if (color == Color.GREEN) {
-            redLED.setState(false);
-            greenLED.setState(true);
+    public void setLEDColor(LED led, Color color) {
+        if (led == LED.FRONT) {
+            if (color == Color.GREEN) {
+                frontRedLED.setState(false);
+                frontGreenLED.setState(true);
+            }
+            else if (color == Color.RED) {
+                frontRedLED.setState(true);
+                frontGreenLED.setState(false);
+            }
         }
-        else if (color == Color.RED) {
-            redLED.setState(true);
-            greenLED.setState(false);
-        }
-        else if (color == Color.YELLOW) {
-            redLED.setState(true);
-            greenLED.setState(true);
+        else if (led == LED.REAR) {
+            if (color == Color.GREEN) {
+                rearRedLED.setState(false);
+                rearGreenLED.setState(true);
+            }
+            else if (color == Color.RED) {
+                rearRedLED.setState(true);
+                rearGreenLED.setState(false);
+            }
         }
     }
 

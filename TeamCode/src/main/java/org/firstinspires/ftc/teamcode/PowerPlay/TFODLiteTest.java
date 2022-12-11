@@ -27,9 +27,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode.PowerPlay;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.List;
@@ -49,9 +48,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
-@Disabled
-public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
+@TeleOp(name = "TFODLiteTest", group = "Concept")
+public class TFODLiteTest extends LinearOpMode {
 
     /*
      * Specify the source for the Tensor Flow Model.
@@ -77,13 +75,12 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
      * web site at https://developer.vuforia.com/license-manager.
      *
      * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
+     * random data.
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
     private static final String VUFORIA_KEY =
-            " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+            "AQpbg+n/////AAABmfa0RqTYeU0dh1pl0bnwk4xTqOMRckslaXoeg2Lh2g0BgvravtF3TmBXb6IqiQfzsSvGqySKMRi9EfH+eYqJ6Cod07En5u8hpFEhYvVpe8mxRw00ycP9tyEu0fuhYiK8LstcJ/1Z6K8aipaBhs/lBv2t1Oj9cfvInN3CTxPDVU+Qu2BGc/ibFoXxOCIIgAbz77x1BLZFk/t+6x542ApHsTHxzzyHb+P3KwHU+CGc3xSjmt05ARTp//dMDnv5GLE53muIuWAFaAcyTo+FWPAfBKoFv2dBB+UNxfJJ5MD7iaRGmKzse8/fHB7eofJWm7g5Mqjfy5OlsPl/nGtfOzyYiieAhkxdfL/JwzdmqIG38MRL";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia

@@ -30,7 +30,7 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    private CRServo liftServo;
+    private DcMotorEx liftMotor;
     private CRServo intakeServo;
 
     private AnalogInput potentiometer;
@@ -83,7 +83,7 @@ public class PowerPlayRobot implements iRobot {
         rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
-        liftServo = hardwareMap.get(CRServo.class, "LiftServo");
+        liftMotor = hardwareMap.get(DcMotorEx.class, "LiftServo");
         intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
 
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
@@ -226,13 +226,13 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(DcMotorSimple.Direction direction) {
-        liftServo.setDirection(direction);
-        liftServo.setPower(1.00);
-        telemetry.addData("LiftPower", liftServo.getPower());
+        liftMotor.setDirection(direction);
+        liftMotor.setPower(0.40);
+        telemetry.addData("LiftPower", liftMotor.getPower());
     }
 
     public void liftMotorStop() {
-        liftServo.setPower(0);
+        liftMotor.setPower(0);
     }
 
     public void intakeMotor(DcMotorSimple.Direction direction) {

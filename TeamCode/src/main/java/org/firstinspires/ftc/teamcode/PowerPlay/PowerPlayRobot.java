@@ -83,7 +83,7 @@ public class PowerPlayRobot implements iRobot {
         rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
-        liftMotor = hardwareMap.get(DcMotorEx.class, "LiftServo");
+        liftMotor = hardwareMap.get(DcMotorEx.class, "LiftMotor");
         intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
 
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");

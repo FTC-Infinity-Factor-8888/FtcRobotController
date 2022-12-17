@@ -30,7 +30,7 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    private DcMotorEx liftMotor;
+    private DcMotorSimple liftMotor;
     private CRServo intakeServo;
 
     private AnalogInput potentiometer;

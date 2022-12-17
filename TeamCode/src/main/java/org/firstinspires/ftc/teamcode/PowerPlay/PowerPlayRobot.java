@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -30,7 +31,7 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    private DcMotorSimple liftMotor;
+    private CRServo liftMotor;
     private CRServo intakeServo;
 
     private AnalogInput potentiometer;
@@ -83,7 +84,7 @@ public class PowerPlayRobot implements iRobot {
         rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
-        liftMotor = hardwareMap.get(DcMotorEx.class, "LiftMotor");
+        liftMotor = hardwareMap.get(CRServo.class, "LiftMotor");
         intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
 
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
@@ -227,7 +228,7 @@ public class PowerPlayRobot implements iRobot {
 
     public void liftMotor(DcMotorSimple.Direction direction) {
         liftMotor.setDirection(direction);
-        liftMotor.setPower(0.60);
+        liftMotor.setPower(0.70);
         telemetry.addData("LiftPower", liftMotor.getPower());
     }
 

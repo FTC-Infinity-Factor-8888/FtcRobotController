@@ -242,8 +242,54 @@ public class PowerPlayRobot implements iRobot {
         telemetry.addData("IntakePower", intakeServo.getPower());
     }
 
-    public void intakeStop() {intakeServo.setPower(0);}
 
+    public void intakeStop() {intakeServo.setPower(0);}
+    /*public void liftMotor(DcMotorSimple.Direction direction) {
+        liftMotor.setDirection(direction);
+        liftMotor.setPower(0.70);
+        telemetry.addData("LiftPower", liftMotor.getPower());
+    }*/
+
+/*
+    public void liftMotorAuto(LiftPosition level) {
+        double liftSpeed = 0.6;
+        int targetPosition = 0; //floor position
+        switch (level) {
+            case BOTTOM:
+                targetPosition = 0;
+                break;
+            case LOW:
+                targetPosition = 65;
+                break;
+            case MEDIUM:
+                targetPosition = 130;
+                break;
+            case HIGH:
+                targetPosition = 430;
+                break;
+            case CAPPING:
+                targetPosition = 967;
+                break;
+        }
+
+        if (targetPosition > getPotentiometer()+0.5) {
+            while (getPotentiometer() < targetPosition && creator.opModeIsActive()) {
+                liftMotor.setPower(liftSpeed);
+            }
+        }
+        else if (targetPosition < getPotentiometer()-0.5) {
+            while (getPotentiometer() > targetPosition && creator.opModeIsActive()) {
+                liftMotor.setPower(-0.2);
+            }
+        }
+        while (creator.opModeIsActive()) {
+            liftMotor.setPower(-0.2);
+            liftMotor.setPower(0.2);
+        }
+    }
+
+
+ */
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
      */

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.PowerPlay.PowerPlayRobot;
 
-// Blue alliance, Left side line, going right
+// Put the cone in the blue robot butt and point it to where you want to go
 @Autonomous (name = "TerminalDrive")
 public class DriveToTerminal extends LinearOpMode {
     PowerPlayRobot ewok;
@@ -18,7 +18,7 @@ public class DriveToTerminal extends LinearOpMode {
 
         waitForStart();
         if(opModeIsActive()) {
-            ewok.drive(37);
+            ewok.drive(-37);
         }
     }
 }

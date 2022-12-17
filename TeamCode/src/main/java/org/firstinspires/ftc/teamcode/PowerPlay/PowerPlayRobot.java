@@ -227,7 +227,7 @@ public class PowerPlayRobot implements iRobot {
 
     public void liftMotor(DcMotorSimple.Direction direction) {
         liftMotor.setDirection(direction);
-        liftMotor.setPower(0.40);
+        liftMotor.setPower(0.60);
         telemetry.addData("LiftPower", liftMotor.getPower());
     }
 

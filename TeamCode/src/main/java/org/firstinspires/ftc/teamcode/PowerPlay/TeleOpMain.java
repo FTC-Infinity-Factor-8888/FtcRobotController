@@ -99,7 +99,7 @@ public class TeleOpMain extends LinearOpMode {
                 the robot or during testing. */
                 telemetry.addData("Accelerator", accelerator);
                 telemetry.addData("Drive mode", direction);
-                r2.getPotentiometer();
+                telemetry.addData("Potentiometer", r2.getPotentiometer());
                 telemetry.update();
             }
         }

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -30,7 +31,7 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    private CRServo liftServo;
+    private CRServo liftMotor;
     private CRServo intakeServo;
 
     private AnalogInput potentiometer;
@@ -83,7 +84,7 @@ public class PowerPlayRobot implements iRobot {
         rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
-        liftServo = hardwareMap.get(CRServo.class, "LiftServo");
+        liftMotor = hardwareMap.get(CRServo.class, "LiftMotor");
         intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
 
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
@@ -226,13 +227,13 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(DcMotorSimple.Direction direction) {
-        liftServo.setDirection(direction);
-        liftServo.setPower(1.00);
-        telemetry.addData("LiftPower", liftServo.getPower());
+        liftMotor.setDirection(direction.inverted());
+        liftMotor.setPower(0.70);
+        telemetry.addData("LiftPower", liftMotor.getPower());
     }
 
     public void liftMotorStop() {
-        liftServo.setPower(0);
+        liftMotor.setPower(0);
     }
 
     public void intakeMotor(DcMotorSimple.Direction direction) {
@@ -241,8 +242,49 @@ public class PowerPlayRobot implements iRobot {
         telemetry.addData("IntakePower", intakeServo.getPower());
     }
 
+
     public void intakeStop() {intakeServo.setPower(0);}
 
+/*
+    public void liftMotorAuto(LiftPosition level) {
+        double liftSpeed = 0.6;
+        int targetPosition = 0; //floor position
+        switch (level) {
+            case BOTTOM:
+                targetPosition = 0;
+                break;
+            case LOW:
+                targetPosition = 65;
+                break;
+            case MEDIUM:
+                targetPosition = 130;
+                break;
+            case HIGH:
+                targetPosition = 430;
+                break;
+            case CAPPING:
+                targetPosition = 967;
+                break;
+        }
+
+        if (targetPosition > getPotentiometer()+0.5) {
+            while (getPotentiometer() < targetPosition && creator.opModeIsActive()) {
+                liftMotor.setPower(liftSpeed);
+            }
+        }
+        else if (targetPosition < getPotentiometer()-0.5) {
+            while (getPotentiometer() > targetPosition && creator.opModeIsActive()) {
+                liftMotor.setPower(-0.2);
+            }
+        }
+        while (creator.opModeIsActive()) {
+            liftMotor.setPower(-0.2);
+            liftMotor.setPower(0.2);
+        }
+    }
+
+
+ */
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
      */

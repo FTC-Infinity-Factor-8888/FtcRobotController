@@ -244,11 +244,6 @@ public class PowerPlayRobot implements iRobot {
 
 
     public void intakeStop() {intakeServo.setPower(0);}
-    /*public void liftMotor(DcMotorSimple.Direction direction) {
-        liftMotor.setDirection(direction);
-        liftMotor.setPower(0.70);
-        telemetry.addData("LiftPower", liftMotor.getPower());
-    }*/
 
 /*
     public void liftMotorAuto(LiftPosition level) {

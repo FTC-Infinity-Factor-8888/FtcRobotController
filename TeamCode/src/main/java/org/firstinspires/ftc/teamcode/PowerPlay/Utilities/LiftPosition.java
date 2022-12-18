@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.PowerPlay;
+package org.firstinspires.ftc.teamcode.PowerPlay.Utilities;
 
 public enum LiftPosition {
-        BOTTOM,
+        GROUND,
         LOW,
         MEDIUM,
         HIGH,

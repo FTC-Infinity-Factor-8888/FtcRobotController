@@ -80,7 +80,7 @@ public class TeleOpMain extends LinearOpMode {
                     r2.liftMotor(r2.DOWN);
                 }
                 else {
-                    r2.liftMotorStop();
+                    r2.liftHold();
                 }
 
                 intake = gamepad2.a;

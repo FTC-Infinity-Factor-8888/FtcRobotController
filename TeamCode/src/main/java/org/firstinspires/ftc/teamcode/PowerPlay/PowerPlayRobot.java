@@ -73,6 +73,7 @@ public class PowerPlayRobot implements iRobot {
 
     private double delta;
     private final double deltaThreshold = 1;
+    private double targetLiftPosition;
 
     public PowerPlayRobot(LinearOpMode creator) {
         this.creator = creator;
@@ -229,16 +230,29 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(DcMotorSimple.Direction direction) {
+        liftMotor.setDirection(direction);
         if (direction == UP) {
-            liftMotor.setDirection(direction);
             liftMotor.setPower(0.70);
-            telemetry.addData("LiftPower", liftMotor.getPower());
-
         }
+        else if (direction == DOWN) {
+            /*
+            TODO: Add down power appropriately.
+             We may find that a separate set on instructions is needed for down.
+             */
+        }
+        telemetry.addData("LiftPower", liftMotor.getPower());
+        targetLiftPosition = getPotentiometer();
     }
 
+    // TODO: Will need to add a delta for which we deem that corrections will not be necessary.
+    // We may need to change these statements based on the potentiometer readings (whether up is a higher number or a lower number).
     public void liftHold() {
-        double targetPosition = getPotentiometer();
+        if (getPotentiometer() < targetLiftPosition) {
+            liftMotor(UP);
+        }
+        else if (getPotentiometer() > targetLiftPosition) {
+            liftMotor(DOWN);
+        }
     }
 
     public void liftMotorStop() {

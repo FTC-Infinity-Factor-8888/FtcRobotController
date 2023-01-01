@@ -86,10 +86,10 @@ public class TeleOpMain extends LinearOpMode {
                 intake = gamepad2.a;
                 outtake = gamepad2.y;
                 if (intake && !outtake) {
-                    r2.intakeMotor(DcMotorSimple.Direction.FORWARD);
+                    r2.intakeMotor(r2.FORWARD);
                 }
                 else if (!intake && outtake) {
-                    r2.intakeMotor(DcMotorSimple.Direction.REVERSE);
+                    r2.intakeMotor(r2.REVERSE);
                 }
                 else {
                     r2.intakeStop();

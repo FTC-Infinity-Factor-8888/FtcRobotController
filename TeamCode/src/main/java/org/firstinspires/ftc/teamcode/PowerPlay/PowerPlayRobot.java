@@ -41,8 +41,10 @@ public class PowerPlayRobot implements iRobot {
     private DigitalChannel rearGreenLED;
     private DigitalChannel rearRedLED;
 
-    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.REVERSE;
-    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.FORWARD;
+    public final DcMotorSimple.Direction FORWARD = DcMotorSimple.Direction.FORWARD;
+    public final DcMotorSimple.Direction REVERSE = DcMotorSimple.Direction.REVERSE;
+    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.FORWARD;
+    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.REVERSE;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -227,9 +229,16 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(DcMotorSimple.Direction direction) {
-        liftMotor.setDirection(direction.inverted());
-        liftMotor.setPower(0.70);
-        telemetry.addData("LiftPower", liftMotor.getPower());
+        if (direction == UP) {
+            liftMotor.setDirection(direction);
+            liftMotor.setPower(0.70);
+            telemetry.addData("LiftPower", liftMotor.getPower());
+
+        }
+    }
+
+    public void liftHold() {
+        double targetPosition = getPotentiometer();
     }
 
     public void liftMotorStop() {
@@ -282,7 +291,7 @@ public class PowerPlayRobot implements iRobot {
             liftMotor.setPower(0.2);
         }
     }
-
+//many things
 
  */
     /**
@@ -317,7 +326,7 @@ public class PowerPlayRobot implements iRobot {
 
         setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setMotorDistanceToTravel(distance, new int[]{1, 1, 1, 1});
-
+//something
         int direction = (distance > 0) ? 1 : -1;
         System.out.println("Direction: " + direction);
 

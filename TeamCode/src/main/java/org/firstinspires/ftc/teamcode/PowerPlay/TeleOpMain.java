@@ -80,7 +80,7 @@ public class TeleOpMain extends LinearOpMode {
                     r2.liftMotor(r2.DOWN);
                 }
                 else {
-                    r2.liftHold();
+                    r2.liftMotorStop();
                 }
 
                 intake = gamepad2.a;
@@ -99,7 +99,6 @@ public class TeleOpMain extends LinearOpMode {
                 the robot or during testing. */
                 telemetry.addData("Accelerator", accelerator);
                 telemetry.addData("Drive mode", direction);
-                telemetry.addData("Potentiometer", r2.getPotentiometer());
                 telemetry.update();
             }
         }

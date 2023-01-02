@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -64,6 +65,8 @@ public class PowerPlayRobot implements iRobot {
     @SuppressWarnings("FieldCanBeLocal")
     private final int rrMotorMaxTps = 2615;
 
+    private final static double HOLD_TIME = 1000; // In ms
+
     private final double ticksPerMotorRevolution = 530.3;
     private final double ticksPerInch = ticksPerMotorRevolution / wheelCircumferenceInInches;
 
@@ -73,7 +76,7 @@ public class PowerPlayRobot implements iRobot {
 
     private double delta;
     private final double deltaThreshold = 1;
-    private double targetLiftPosition;
+    public double targetLiftPosition;
 
     public PowerPlayRobot(LinearOpMode creator) {
         this.creator = creator;
@@ -114,6 +117,7 @@ public class PowerPlayRobot implements iRobot {
         setLEDColor(LED.FRONT, Color.GREEN);
         setLEDColor(LED.REAR, Color.RED);
         initializeIMU();
+        targetLiftPosition = getPotentiometer();
     }
 
     /**
@@ -136,18 +140,18 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public double getPotentiometer() {
-        double voltage = potentiometer.getVoltage();
-        telemetry.addData("Potentiometer", voltage);
-        return voltage;
+        return potentiometer.getVoltage();
     }
 
     /**
      * Displays telemetry information on the Driver Hub
      */
     public void telemetryDashboard(@SuppressWarnings("unused") String msg) {
+        telemetry.addData("Potentiometer", getPotentiometer());
+        telemetry.addData("Target potentiometer", targetLiftPosition);
+
         telemetry.addData("Heading", "Desired: %.0f, Current: %.0f, Delta: %.0f",
                 getIMUHeading(), getIMUHeading(), delta);
-
         telemetry.addData("Target", "LF: %d, LR: %d, RF: %d, RR: %d",
                 lfMotor.getTargetPosition(), lrMotor.getTargetPosition(), rfMotor.getTargetPosition(), rrMotor.getTargetPosition());
         telemetry.addData("Position", "LF: %d, LR: %d, RF: %d, RR: %d",
@@ -229,30 +233,17 @@ public class PowerPlayRobot implements iRobot {
         System.out.println("DEBUG: Delta power (left): " + leftSpeed + " (right): " + rightSpeed);
     }
 
-    public void liftMotor(DcMotorSimple.Direction direction) {
+    public void liftMotor(DcMotorSimple.Direction direction, double power) {
+        if (getPotentiometer() == 0 && direction == UP) {return;}
+        else if (getPotentiometer() == 0.54 && direction == DOWN) {return;}
         liftMotor.setDirection(direction);
         if (direction == UP) {
-            liftMotor.setPower(0.70);
+            liftMotor.setPower(power);
         }
-        else if (direction == DOWN) {
-            /*
-            TODO: Add down power appropriately.
-             We may find that a separate set on instructions is needed for down.
-             */
-        }
-        telemetry.addData("LiftPower", liftMotor.getPower());
-        targetLiftPosition = getPotentiometer();
     }
 
-    // TODO: Will need to add a delta for which we deem that corrections will not be necessary.
-    // We may need to change these statements based on the potentiometer readings (whether up is a higher number or a lower number).
-    public void liftHold() {
-        if (getPotentiometer() < targetLiftPosition) {
-            liftMotor(UP);
-        }
-        else if (getPotentiometer() > targetLiftPosition) {
-            liftMotor(DOWN);
-        }
+    public void liftMotor(DcMotorSimple.Direction direction) {
+        liftMotor(direction, 0.70);
     }
 
     public void liftMotorStop() {
@@ -450,12 +441,125 @@ public class PowerPlayRobot implements iRobot {
 
     @Override
     public void strafe(double distance) {
+        setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double strafeSlippage = 1.1;
+        double desiredHeading = getIMUHeading();
+        double leftSpeed;
+        double rightSpeed;
+        double strafePositionPIDF = 6.5;
+        lfMotor.setPositionPIDFCoefficients(strafePositionPIDF);
+        rfMotor.setPositionPIDFCoefficients(strafePositionPIDF);
+        lrMotor.setPositionPIDFCoefficients(strafePositionPIDF);
+        rrMotor.setPositionPIDFCoefficients(strafePositionPIDF);
+        setMotorDistanceToTravel(distance * strafeSlippage, new int[]{-1, 1, 1, -1});
+        double speed = MIN_ROBOT_SPEED;
+        leftSpeed = speed;
+        rightSpeed = -speed;
+        powerTheWheels(rightSpeed, leftSpeed, leftSpeed, rightSpeed);
+        telemetryDashboard("");
+        while (creator.opModeIsActive() && motorsShouldContinue(distance, new int[]{-1, 1, 1, -1})) {
+            double imuHeading = getIMUHeading();
+            delta = normalizeHeading(desiredHeading - imuHeading);
+            double adjustSpeed = 0;
+            if (Math.abs(delta) > deltaThreshold) {
+                //e
+                adjustSpeed = correctionSpeed;
+                if (delta > 0) {
+                    adjustSpeed *= -1;
+                }
+            }
+            leftSpeed = speed + adjustSpeed;
+            rightSpeed = -speed - adjustSpeed;
+            powerTheWheels(rightSpeed, leftSpeed, leftSpeed, rightSpeed);
+            telemetryDashboard("");
 
+            double strafeRobotSpeed = 0.5;
+            if (speed < strafeRobotSpeed) {
+                double driveAccelerationIncrement = 0.075;
+                speed += driveAccelerationIncrement;
+            }
+        }
+        if (!creator.opModeIsActive()) {
+            throw new EmergencyStopException("Strafe");
+        }
+        // Reset motor mode
+        setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        powerTheWheels(0, 0, 0, 0);
+        lfMotor.setPositionPIDFCoefficients(drivePositionPIDF2);
+        rfMotor.setPositionPIDFCoefficients(drivePositionPIDF2);
+        lrMotor.setPositionPIDFCoefficients(drivePositionPIDF2);
+        rrMotor.setPositionPIDFCoefficients(drivePositionPIDF2);
     }
 
     @Override
     public void rotate(double degrees) {
+        double minTurnSpeed = 0.1;
+        double currentHeading = getIMUHeading();
+        double leftSpeed;
+        double rightSpeed;
+        delta = normalizeHeading(degrees - currentHeading);
+        double priorDelta = delta;
+        int ringingCount = 0;
+        double turnDeltaThreshold = 5;
+        while (creator.opModeIsActive() && Math.abs(delta) > turnDeltaThreshold && ringingCount <= 3) {
+            currentHeading = getIMUHeading();
+            delta = normalizeHeading(degrees - currentHeading);
+            double deltaPercentage = powerPercentage(delta);
+            double turnSpeed = 0.1;
+            double currentTurnSpeed = turnSpeed * deltaPercentage + minTurnSpeed;
+            if (delta < 0) {
+                currentTurnSpeed = -currentTurnSpeed;
+            }
+            leftSpeed = -currentTurnSpeed;
+            rightSpeed = currentTurnSpeed;
+            powerTheWheels(leftSpeed, leftSpeed, rightSpeed, rightSpeed);
+            System.out.println("DEBUG: Current Heading: " + currentHeading + " Desired Heading: " + degrees + " Speed: " + currentTurnSpeed);
+            telemetryDashboard("");
+            if (Math.signum(delta) != Math.signum(priorDelta) && delta != 0 && priorDelta != 0) {
+                ringingCount++;
+            }
+            priorDelta = delta;
+        }
+        if (!creator.opModeIsActive()) {
+            throw new EmergencyStopException("Turn");
+        }
 
+        powerTheWheels(0, 0, 0, 0);
+        hold(degrees);
+    }
+
+    public void hold(double degrees) {
+        ElapsedTime timer;
+
+        double leftSpeed;
+        double rightSpeed;
+        double currentHeading = getIMUHeading();
+        delta = normalizeHeading(degrees - currentHeading);
+        timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        timer.reset();
+        while (creator.opModeIsActive() && Math.abs(delta) > 0.5 && timer.time() < HOLD_TIME) {
+            double holdSpeed = 0.15;
+            if (delta > 0) {
+                leftSpeed = -holdSpeed;
+                rightSpeed = holdSpeed;
+            }
+            else {
+                leftSpeed = holdSpeed;
+                rightSpeed = -holdSpeed;
+            }
+            powerTheWheels(leftSpeed, leftSpeed, rightSpeed, rightSpeed);
+            creator.sleep(75);
+            powerTheWheels(0, 0, 0, 0);
+            telemetryDashboard("");
+            currentHeading = getIMUHeading();
+            delta = normalizeHeading(degrees - currentHeading);
+        }
+
+        if (!creator.opModeIsActive()) {
+            throw new EmergencyStopException("Hold");
+        }
+
+        powerTheWheels(0, 0, 0, 0);
     }
 
     @Override
@@ -713,6 +817,29 @@ public class PowerPlayRobot implements iRobot {
             }
         }
     }
+
+    private boolean motorsShouldContinue(double distance, int[] motorDirection) {
+        boolean motorsAreBusy = lfMotor.isBusy() && rfMotor.isBusy() && lrMotor.isBusy() && rrMotor.isBusy();
+        boolean aMotorHasPassedPosition = false;
+        if (motorsAreBusy) {
+            aMotorHasPassedPosition = checkMotorPosition(lfMotor, distance * motorDirection[0])
+                    || checkMotorPosition(lrMotor, distance * motorDirection[1])
+                    || checkMotorPosition(rfMotor, distance * motorDirection[2])
+                    || checkMotorPosition(rrMotor, distance * motorDirection[3]);
+        }
+        return motorsAreBusy && !aMotorHasPassedPosition;
+    }
+
+    private boolean checkMotorPosition(DcMotorEx motor, double distance) {
+        //checks to see if we have gotten there yet
+        if (distance > 0) {
+            return motor.getCurrentPosition() + 10 > motor.getTargetPosition();
+        }
+        else {
+            return motor.getCurrentPosition() < motor.getTargetPosition();
+        }
+    }
+
 
     @Override
     public double getIMUHeading(){

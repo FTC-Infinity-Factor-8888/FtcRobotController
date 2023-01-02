@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode.PowerPlay;
+package org.firstinspires.ftc.teamcode.PowerPlay.Tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+
+import org.firstinspires.ftc.teamcode.PowerPlay.PowerPlayRobot;
 
 @TeleOp
 public class PotentiometerTest extends LinearOpMode {

@@ -24,17 +24,20 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.PowerPlay.PowerPlayRobot;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
+//todo potentially import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
 @TeleOp
 public class AprilTagAutoDetectionTest18 extends LinearOpMode
 {
+        PowerPlayRobot ewok;
+
         OpenCvCamera camera;
         AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -58,7 +61,8 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
 
         @Override
         public void runOpMode()
-        {
+        {   //todo: May have to change this vvvvvv
+            ewok = new PowerPlayRobot(this);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
@@ -165,10 +169,8 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
             /* Actually do something useful */
             if(tagOfInterest == null)
             {
-                /*
-                 * Insert your autonomous code here, presumably running some default configuration
-                 * since the tag was never sighted during INIT
-                 */
+                ewok.rotate(-90);
+                ewok.drive(-37);
             }
             else
             {

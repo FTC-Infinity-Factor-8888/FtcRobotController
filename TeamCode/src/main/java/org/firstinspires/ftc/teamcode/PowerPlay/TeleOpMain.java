@@ -83,17 +83,17 @@ public class TeleOpMain extends LinearOpMode {
                     r2.liftMotorStop();
                 }
 
-                intake = gamepad2.a;
-                outtake = gamepad2.y;
-                if (intake && !outtake) {
-                    r2.intakeMotor(r2.FORWARD);
-                }
-                else if (!intake && outtake) {
-                    r2.intakeMotor(r2.REVERSE);
-                }
-                else {
-                    r2.intakeStop();
-                }
+//                intake = gamepad2.a;
+//                outtake = gamepad2.y;
+//                if (intake && !outtake) {
+//                    r2.intakeMotor(r2.FORWARD);
+//                }
+//                else if (!intake && outtake) {
+//                    r2.intakeMotor(r2.REVERSE);
+//                }
+//                else {
+//                    r2.intakeStop();
+//                }
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */

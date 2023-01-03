@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 
@@ -33,7 +34,7 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lrMotor;
 
     private CRServo liftMotor;
-    private CRServo intakeServo;
+    private Servo intakeServo;
 
     private AnalogInput potentiometer;
     private BNO055IMU imu;
@@ -91,7 +92,7 @@ public class PowerPlayRobot implements iRobot {
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
         liftMotor = hardwareMap.get(CRServo.class, "LiftMotor");
-        intakeServo = hardwareMap.get(CRServo.class, "IntakeServo");
+        intakeServo = hardwareMap.get(Servo.class, "IntakeServo");
 
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
         frontGreenLED = hardwareMap.get(DigitalChannel.class, "FrontGreenLED");
@@ -240,6 +241,8 @@ public class PowerPlayRobot implements iRobot {
         if (direction == UP) {
             liftMotor.setPower(power);
         }
+        // Debug telemetry below:
+        telemetry.addData("Lift power", liftMotor.getPower());
     }
 
     public void liftMotor(DcMotorSimple.Direction direction) {
@@ -250,14 +253,18 @@ public class PowerPlayRobot implements iRobot {
         liftMotor.setPower(0);
     }
 
-    public void intakeMotor(DcMotorSimple.Direction direction) {
-        intakeServo.setDirection(direction);
-        intakeServo.setPower(0.60);
-        telemetry.addData("IntakePower", intakeServo.getPower());
+    public void intakeMotor(IntakePosition intakePosition) {
+        double position = 0;
+        switch (intakePosition) {
+            case IN:
+                position = 0;
+                break;
+            case OUT:
+                position = 1;
+                break;
+        }
+        intakeServo.setPosition(position);
     }
-
-
-    public void intakeStop() {intakeServo.setPower(0);}
 
 /*
     public void liftMotorAuto(LiftPosition level) {

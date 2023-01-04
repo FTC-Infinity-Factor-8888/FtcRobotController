@@ -181,14 +181,18 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
                 // e.g.
                 if(tagOfInterest.pose.x <= 20)
                 {
-                    // do something
+                    ewok.drive(15);
+                    ewok.strafe(20);
                 }
                 else if(tagOfInterest.pose.x >= 20 && tagOfInterest.pose.x <= 50)
                 {
+                    ewok.drive(15);
                     // do something else
                 }
                 else if(tagOfInterest.pose.x >= 50)
                 {
+                    ewok.drive(15);
+                    ewok.strafe(-20);
                     // do something else
                 }
             }

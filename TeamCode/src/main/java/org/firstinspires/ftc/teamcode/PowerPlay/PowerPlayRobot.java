@@ -23,6 +23,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 
+import java.sql.SQLOutput;
+
 public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
     private final HardwareMap hardwareMap;
@@ -500,11 +502,15 @@ public class PowerPlayRobot implements iRobot {
 
     @Override
     public void rotate(double degrees) {
+        System.out.println("[**]DEBUG - Entered rotate");
+        System.out.println("[**]DEBUG - Degrees: " + degrees);
         double minTurnSpeed = 0.1;
         double currentHeading = getIMUHeading();
+        System.out.println("[**]DEBUG - Current heading: " + currentHeading);
         double leftSpeed;
         double rightSpeed;
         delta = normalizeHeading(degrees - currentHeading);
+        System.out.println("[**]DEBUG - Delta: " + delta);
         double priorDelta = delta;
         int ringingCount = 0;
         double turnDeltaThreshold = 5;
@@ -526,11 +532,13 @@ public class PowerPlayRobot implements iRobot {
                 ringingCount++;
             }
             priorDelta = delta;
+            System.out.println("[**]DEBUG - Speed: " + leftSpeed + rightSpeed);
         }
         if (!creator.opModeIsActive()) {
             throw new EmergencyStopException("Turn");
         }
-
+        // TODO: Remove telemetry after testing
+        System.out.println("[**]DEBUG - IMU: " + getIMUHeading());
         powerTheWheels(0, 0, 0, 0);
         hold(degrees);
     }
@@ -881,6 +889,13 @@ public class PowerPlayRobot implements iRobot {
 
     @Override
     public double normalizeHeading(double heading) {
-        return 0;
+        while (heading >= 180.0 || heading < -180.0) {
+            if (heading >= 180.0) {
+                heading -= 360.0;
+            } else {
+                heading += 360.0;
+            }
+        }
+        return heading;
     }
 }

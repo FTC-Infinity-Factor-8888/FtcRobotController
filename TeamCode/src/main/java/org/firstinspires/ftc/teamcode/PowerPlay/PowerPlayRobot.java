@@ -245,6 +245,7 @@ public class PowerPlayRobot implements iRobot {
 
     public void intakeStop() {intakeServo.setPower(0);}
 
+
 /*
     public void liftMotorAuto(LiftPosition level) {
         double liftSpeed = 0.6;

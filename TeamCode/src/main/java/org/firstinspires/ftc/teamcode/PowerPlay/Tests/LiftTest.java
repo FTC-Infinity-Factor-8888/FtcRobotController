@@ -29,7 +29,7 @@ public class LiftTest extends LinearOpMode {
             while (opModeIsActive()) {
                 // Put loop blocks here.
                 double power = gamepad1.left_stick_y;
-                r2.liftMotor(r2.UP, -power);
+                r2.liftMotor(r2.UP, power);
                 telemetry.addData("Potentiometer", r2.getPotentiometer());
                 telemetry.update();
             }

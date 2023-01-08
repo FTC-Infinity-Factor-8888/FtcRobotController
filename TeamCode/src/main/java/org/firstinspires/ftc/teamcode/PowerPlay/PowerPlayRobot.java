@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 
 import java.sql.SQLOutput;
@@ -37,6 +38,7 @@ public class PowerPlayRobot implements iRobot {
 
     private CRServo liftMotor;
     private Servo intakeServo;
+    private Servo wristServo;
 
     private AnalogInput potentiometer;
     private BNO055IMU imu;
@@ -47,8 +49,8 @@ public class PowerPlayRobot implements iRobot {
 
     public final DcMotorSimple.Direction FORWARD = DcMotorSimple.Direction.FORWARD;
     public final DcMotorSimple.Direction REVERSE = DcMotorSimple.Direction.REVERSE;
-    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.FORWARD;
-    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.REVERSE;
+    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.REVERSE;
+    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.FORWARD;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -95,6 +97,7 @@ public class PowerPlayRobot implements iRobot {
 
         liftMotor = hardwareMap.get(CRServo.class, "LiftMotor");
         intakeServo = hardwareMap.get(Servo.class, "IntakeServo");
+        wristServo = hardwareMap.get(Servo.class, "WristServo");
 
         potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
         frontGreenLED = hardwareMap.get(DigitalChannel.class, "FrontGreenLED");
@@ -237,8 +240,17 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(DcMotorSimple.Direction direction, double power) {
-        if (getPotentiometer() == 0 && direction == UP) {return;}
-        else if (getPotentiometer() == 0.54 && direction == DOWN) {return;}
+        // double roundedGetPotentiometer = (Math.round(getPotentiometer() * 100.0)) / 100.0;
+        long roundedGetPotentiometer = Math.round(getPotentiometer() * 100);
+        System.out.println("DEBUG - Potentiometer: " + roundedGetPotentiometer);
+//        if (roundedGetPotentiometer <= 15 && direction == UP) {
+//            power = 0.00;
+//        }
+//        else {
+//            System.out.println("DEBUG - UP");
+//        }
+        System.out.println("DEBUG - Direction: " + direction);
+        // else if (roundedGetPotentiometer >= 54 && direction == DOWN) {return;}
         liftMotor.setDirection(direction);
         if (direction == UP) {
             liftMotor.setPower(power);
@@ -266,6 +278,23 @@ public class PowerPlayRobot implements iRobot {
                 break;
         }
         intakeServo.setPosition(position);
+    }
+
+    public void wristMotor(WristPosition wristPosition) {
+        double position = 0;
+        switch (wristPosition) {
+            case UP:
+                position = 1;
+                break;
+            case DOWN:
+                position = 0;
+                break;
+            case MIDDLE:
+                wristServo.setPosition(1);
+                position = 0.5;
+                break;
+        }
+        wristServo.setPosition(position);
     }
 
 /*

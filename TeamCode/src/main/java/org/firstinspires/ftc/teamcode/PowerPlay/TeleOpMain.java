@@ -73,15 +73,15 @@ public class TeleOpMain extends LinearOpMode {
                 liftUp = gamepad2.right_bumper;
                 liftDown = gamepad2.left_bumper;
 
-                if (liftUp && !liftDown) {
-                    r2.liftMotor(r2.UP);
-                }
-                else if (!liftUp && liftDown) {
-                    r2.liftMotor(r2.DOWN);
-                }
-                else {
-                    r2.liftMotorStop();
-                }
+//                if (liftUp && !liftDown) {
+//                    r2.liftMotor(r2.UP);
+//                }
+//                else if (!liftUp && liftDown) {
+//                    r2.liftMotor(r2.DOWN);
+//                }
+//                else {
+//                    r2.liftMotorStop();
+//                }
 
 //                intake = gamepad2.a;
 //                outtake = gamepad2.y;

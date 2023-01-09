@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 
 @TeleOp(name = "TeleOpMain")
 public class TeleOpMain extends LinearOpMode {
@@ -18,8 +20,13 @@ public class TeleOpMain extends LinearOpMode {
         // Declaring the buttons that may quickly change:
         boolean liftUp;
         boolean liftDown;
+
         boolean intake;
         boolean outtake;
+
+        boolean wristUp;
+        boolean wristDown;
+        boolean wristMiddle;
 
         boolean lb;
         boolean rb;
@@ -83,22 +90,31 @@ public class TeleOpMain extends LinearOpMode {
 //                    r2.liftMotorStop();
 //                }
 
-//                intake = gamepad2.a;
-//                outtake = gamepad2.y;
-//                if (intake && !outtake) {
-//                    r2.intakeMotor(r2.FORWARD);
-//                }
-//                else if (!intake && outtake) {
-//                    r2.intakeMotor(r2.REVERSE);
-//                }
-//                else {
-//                    r2.intakeStop();
-//                }
+                intake = gamepad2.a;
+                outtake = gamepad2.y;
+                if (intake && !outtake) {
+                    r2.intakeMotor(IntakePosition.IN);
+                }
+                else if (!intake && outtake) {
+                    r2.intakeMotor(IntakePosition.OUT);
+                }
+
+                wristUp = gamepad2.dpad_up;
+                wristDown = gamepad2.dpad_down;
+                wristMiddle = gamepad2.dpad_right;
+                if (wristUp && !wristDown && !wristMiddle) {
+                    r2.wristMotor(WristPosition.UP);
+                }
+                else if (!wristUp && wristDown && !wristMiddle) {
+                    r2.wristMotor(WristPosition.DOWN);
+                }
+                else if (!wristUp && !wristDown && wristMiddle) {
+                    r2.wristMotor(WristPosition.MIDDLE);
+                }
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
                 telemetry.addData("Accelerator", accelerator);
-                telemetry.addData("Drive mode", direction);
                 telemetry.update();
             }
         }

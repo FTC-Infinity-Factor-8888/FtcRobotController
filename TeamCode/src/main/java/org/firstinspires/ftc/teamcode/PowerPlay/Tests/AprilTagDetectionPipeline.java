@@ -144,7 +144,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         }
     }
 
-    
+
 
     public ArrayList<AprilTagDetection> getDetectionsUpdate()
     {

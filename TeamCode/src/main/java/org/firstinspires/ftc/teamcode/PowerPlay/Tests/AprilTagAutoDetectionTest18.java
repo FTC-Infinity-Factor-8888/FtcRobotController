@@ -93,7 +93,7 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
             {
                 ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
 
-                if(currentDetections.size() != 0)
+                if(currentDetections!= null && currentDetections.size() != 0)
                 {
                     boolean tagFound = false;
 

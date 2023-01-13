@@ -144,10 +144,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         }
     }
 
-    public ArrayList<AprilTagDetection> getLatestDetections()
-    {
-        return detections;
-    }
+    
 
     public ArrayList<AprilTagDetection> getDetectionsUpdate()
     {

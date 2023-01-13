@@ -91,7 +91,7 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
              */
             while (!isStarted() && !isStopRequested())
             {
-                ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+                ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
 
                 if(currentDetections.size() != 0)
                 {

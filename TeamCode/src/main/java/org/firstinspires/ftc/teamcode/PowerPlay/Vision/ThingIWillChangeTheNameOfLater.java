@@ -28,7 +28,9 @@ public class ThingIWillChangeTheNameOfLater extends LinearOpMode{
     private void setTagOfInterest(AprilTagDetection tag, SignalLocation location) {
         tagOfInterest = tag;
         tagOfInterestLocation = location;
+
     }
+
     /*
      * Copyright (c) 2021 OpenFTC Team
      *
@@ -216,6 +218,7 @@ public class ThingIWillChangeTheNameOfLater extends LinearOpMode{
             while (opModeIsActive()) {sleep(20);}
         }
 
+
         void tagToTelemetry(AprilTagDetection detection)
         {
             telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
@@ -226,23 +229,7 @@ public class ThingIWillChangeTheNameOfLater extends LinearOpMode{
             telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
             telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
         }
-
-
-
-    if (tag.id == 18) {
-            setTagOfInterest(tag, ZONE_1);
-            break;
-            }
-            else if (tag.id == 4) {
-            setTagOfInterest(tag, ZONE_2);
-            break;
-            }
-            else if (tag.id == 0) {
-            setTagOfInterest(tag, ZONE_2);
-            break;
-            }
-
 }
-}
+
 
 

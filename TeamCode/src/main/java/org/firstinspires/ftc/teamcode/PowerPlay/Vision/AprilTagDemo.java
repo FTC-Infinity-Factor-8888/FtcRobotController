@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.PowerPlay.Tests;
+package org.firstinspires.ftc.teamcode.PowerPlay.Vision;
 
 /*
  * Copyright (c) 2021 OpenFTC Team
@@ -30,8 +30,6 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
-import org.openftc.easyopencv.OpenCvInternalCamera2;
 
 import java.util.ArrayList;
 

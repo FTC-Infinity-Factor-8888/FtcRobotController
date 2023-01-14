@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -21,10 +20,9 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LiftDirection;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
-
-import java.sql.SQLOutput;
 
 public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
@@ -36,7 +34,8 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    private CRServo liftMotor;
+    public DcMotorEx liftMotor;
+
     private Servo intakeServo;
     private Servo wristServo;
 
@@ -95,7 +94,8 @@ public class PowerPlayRobot implements iRobot {
         rfMotor = hardwareMap.get(DcMotorEx.class, "RFMotor");
         rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
 
-        liftMotor = hardwareMap.get(CRServo.class, "LiftMotor");
+        liftMotor = hardwareMap.get(DcMotorEx.class, "LiftMotor");
+
         intakeServo = hardwareMap.get(Servo.class, "IntakeServo");
         wristServo = hardwareMap.get(Servo.class, "WristServo");
 
@@ -119,6 +119,10 @@ public class PowerPlayRobot implements iRobot {
         lrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         setLEDColor(LED.FRONT, Color.GREEN);
         setLEDColor(LED.REAR, Color.RED);
@@ -153,9 +157,6 @@ public class PowerPlayRobot implements iRobot {
      * Displays telemetry information on the Driver Hub
      */
     public void telemetryDashboard(@SuppressWarnings("unused") String msg) {
-        telemetry.addData("Potentiometer", getPotentiometer());
-        telemetry.addData("Target potentiometer", targetLiftPosition);
-
         telemetry.addData("Heading", "Desired: %.0f, Current: %.0f, Delta: %.0f",
                 getIMUHeading(), getIMUHeading(), delta);
         telemetry.addData("Target", "LF: %d, LR: %d, RF: %d, RR: %d",
@@ -239,28 +240,17 @@ public class PowerPlayRobot implements iRobot {
         System.out.println("DEBUG: Delta power (left): " + leftSpeed + " (right): " + rightSpeed);
     }
 
-    public void liftMotor(DcMotorSimple.Direction direction, double power) {
-        // double roundedGetPotentiometer = (Math.round(getPotentiometer() * 100.0)) / 100.0;
-        long roundedGetPotentiometer = Math.round(getPotentiometer() * 100);
-        System.out.println("DEBUG - Potentiometer: " + roundedGetPotentiometer);
-//        if (roundedGetPotentiometer <= 15 && direction == UP) {
-//            power = 0.00;
-//        }
-//        else {
-//            System.out.println("DEBUG - UP");
-//        }
-        System.out.println("DEBUG - Direction: " + direction);
-        // else if (roundedGetPotentiometer >= 54 && direction == DOWN) {return;}
-        liftMotor.setDirection(direction);
-        if (direction == UP) {
-            liftMotor.setPower(power);
+    public void liftMotor(LiftDirection direction, double initialVelocity) {
+        double velocity = -0.00059722 * Math.pow(liftMotor.getCurrentPosition(), 2) + initialVelocity;
+        System.out.println("Velocity: " + velocity);
+        if (direction == LiftDirection.UP) {
+            if (liftMotor.getCurrentPosition() >= 500) {return;}
+            liftMotor.setVelocity(velocity);
         }
-        // Debug telemetry below:
-        telemetry.addData("Lift power", liftMotor.getPower());
-    }
-
-    public void liftMotor(DcMotorSimple.Direction direction) {
-        liftMotor(direction, 0.70);
+        /*else if (direction == LiftDirection.DOWN) {
+            if (liftMotor.getCurrentPosition() <= 0) {return;}
+            liftMotor.setVelocity(-velocity);
+        }*/
     }
 
     public void liftMotorStop() {

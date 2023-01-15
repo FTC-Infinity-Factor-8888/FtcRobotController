@@ -80,15 +80,15 @@ public class TeleOpMain extends LinearOpMode {
                 liftUp = gamepad2.right_bumper;
                 liftDown = gamepad2.left_bumper;
 
-//                if (liftUp && !liftDown) {
-//                    r2.liftMotor(r2.UP);
-//                }
-//                else if (!liftUp && liftDown) {
-//                    r2.liftMotor(r2.DOWN);
-//                }
-//                else {
-//                    r2.liftMotorStop();
-//                }
+                if (liftUp && !liftDown) {
+                    r2.liftMotor(0.50);
+                }
+                else if (!liftUp && liftDown) {
+                    r2.liftMotor(-0.20);
+                }
+                else {
+                    r2.liftMotorStop();
+                }
 
                 intake = gamepad2.a;
                 outtake = gamepad2.y;
@@ -114,7 +114,7 @@ public class TeleOpMain extends LinearOpMode {
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
-                telemetry.addData("Accelerator", accelerator);
+                r2.telemetryDashboard("");
                 telemetry.update();
             }
         }

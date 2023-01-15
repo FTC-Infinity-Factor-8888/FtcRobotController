@@ -2,13 +2,13 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
-import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LiftDirection;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 
@@ -34,22 +33,18 @@ public class PowerPlayRobot implements iRobot {
     private DcMotorEx lfMotor;
     private DcMotorEx lrMotor;
 
-    public DcMotorEx liftMotor;
+    private DcMotorEx liftMotor;
 
     private Servo intakeServo;
     private Servo wristServo;
 
-    private AnalogInput potentiometer;
     private BNO055IMU imu;
+    private TouchSensor limitSwitch;
+
     private DigitalChannel frontGreenLED;
     private DigitalChannel frontRedLED;
     private DigitalChannel rearGreenLED;
     private DigitalChannel rearRedLED;
-
-    public final DcMotorSimple.Direction FORWARD = DcMotorSimple.Direction.FORWARD;
-    public final DcMotorSimple.Direction REVERSE = DcMotorSimple.Direction.REVERSE;
-    public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.REVERSE;
-    public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.FORWARD;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -74,13 +69,16 @@ public class PowerPlayRobot implements iRobot {
     private final double ticksPerMotorRevolution = 530.3;
     private final double ticksPerInch = ticksPerMotorRevolution / wheelCircumferenceInInches;
 
+    private final int lowerLiftLimit = 0;
+    private final int upperLiftLimit = 1000;
+    private final int upperLimitThreshold = 900;
+
     // TODO: PIDF values must be updated to work for this year.
     private final double drivePositionPIDF1 = 2.0; // For distance >= 20"
     private final double drivePositionPIDF2 = 4.0; // For distances <= 20"
 
     private double delta;
     private final double deltaThreshold = 1;
-    public double targetLiftPosition;
 
     public PowerPlayRobot(LinearOpMode creator) {
         this.creator = creator;
@@ -99,7 +97,8 @@ public class PowerPlayRobot implements iRobot {
         intakeServo = hardwareMap.get(Servo.class, "IntakeServo");
         wristServo = hardwareMap.get(Servo.class, "WristServo");
 
-        potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
+        limitSwitch = hardwareMap.get(TouchSensor.class, "LimitSwitch");
+
         frontGreenLED = hardwareMap.get(DigitalChannel.class, "FrontGreenLED");
         frontRedLED = hardwareMap.get(DigitalChannel.class, "FrontRedLED");
         rearGreenLED = hardwareMap.get(DigitalChannel.class, "RearGreenLED");
@@ -127,7 +126,6 @@ public class PowerPlayRobot implements iRobot {
         setLEDColor(LED.FRONT, Color.GREEN);
         setLEDColor(LED.REAR, Color.RED);
         initializeIMU();
-        targetLiftPosition = getPotentiometer();
     }
 
     /**
@@ -149,10 +147,6 @@ public class PowerPlayRobot implements iRobot {
         telemetry.update();
     }
 
-    public double getPotentiometer() {
-        return potentiometer.getVoltage();
-    }
-
     /**
      * Displays telemetry information on the Driver Hub
      */
@@ -165,6 +159,9 @@ public class PowerPlayRobot implements iRobot {
                 lfMotor.getCurrentPosition(), lrMotor.getCurrentPosition(), rfMotor.getCurrentPosition(), rrMotor.getCurrentPosition());
         telemetry.addData("Power", "LF: %.1f, LR: %.1f, RF: %.1f, RR: %.1f",
                 lfMotor.getPower(), lrMotor.getPower(), rfMotor.getPower(), rrMotor.getPower());
+        telemetry.addData("LiftPosition", liftMotor.getCurrentPosition());
+        telemetry.addData("LiftPower", liftMotor.getPower());
+        telemetry.addData("LimitSwitch", limitSwitch.isPressed());
 
         double imuHeading = getIMUHeading();
 
@@ -240,21 +237,27 @@ public class PowerPlayRobot implements iRobot {
         System.out.println("DEBUG: Delta power (left): " + leftSpeed + " (right): " + rightSpeed);
     }
 
-    public void liftMotor(LiftDirection direction, double initialVelocity) {
-        double velocity = -0.00059722 * Math.pow(liftMotor.getCurrentPosition(), 2) + initialVelocity;
-        System.out.println("Velocity: " + velocity);
-        if (direction == LiftDirection.UP) {
-            if (liftMotor.getCurrentPosition() >= 500) {return;}
-            liftMotor.setVelocity(velocity);
+    public void liftMotor(double power) {
+        if (liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed()) {
+            liftMotor.setPower(0.0);
+            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
-        /*else if (direction == LiftDirection.DOWN) {
-            if (liftMotor.getCurrentPosition() <= 0) {return;}
-            liftMotor.setVelocity(-velocity);
-        }*/
+        else if (liftMotor.getCurrentPosition() > upperLiftLimit) {
+            liftMotor.setPower(0.0);
+        }
+        if (power > 0 && liftMotor.getCurrentPosition() > upperLimitThreshold) {
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            liftMotor.setPower(power);
+            liftMotor.setTargetPosition(1000);
+            liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+        else {
+            liftMotor.setPower(power);
+        }
     }
 
     public void liftMotorStop() {
-        liftMotor.setPower(0);
+        liftMotor.setPower(0.0);
     }
 
     public void intakeMotor(IntakePosition intakePosition) {
@@ -287,46 +290,24 @@ public class PowerPlayRobot implements iRobot {
         wristServo.setPosition(position);
     }
 
-/*
-    public void liftMotorAuto(LiftPosition level) {
-        double liftSpeed = 0.6;
-        int targetPosition = 0; //floor position
-        switch (level) {
-            case BOTTOM:
-                targetPosition = 0;
-                break;
-            case LOW:
-                targetPosition = 65;
-                break;
-            case MEDIUM:
-                targetPosition = 130;
-                break;
-            case HIGH:
-                targetPosition = 430;
-                break;
-            case CAPPING:
-                targetPosition = 967;
-                break;
-        }
+//        switch (level) {
+//            case BOTTOM:
+//                targetPosition = 0;
+//                break;
+//            case LOW:
+//                targetPosition = 65;
+//                break;
+//            case MEDIUM:
+//                targetPosition = 130;
+//                break;
+//            case HIGH:
+//                targetPosition = 430;
+//                break;
+//            case CAPPING:
+//                targetPosition = 967;
+//                break;
+//        }
 
-        if (targetPosition > getPotentiometer()+0.5) {
-            while (getPotentiometer() < targetPosition && creator.opModeIsActive()) {
-                liftMotor.setPower(liftSpeed);
-            }
-        }
-        else if (targetPosition < getPotentiometer()-0.5) {
-            while (getPotentiometer() > targetPosition && creator.opModeIsActive()) {
-                liftMotor.setPower(-0.2);
-            }
-        }
-        while (creator.opModeIsActive()) {
-            liftMotor.setPower(-0.2);
-            liftMotor.setPower(0.2);
-        }
-    }
-//many things
-
- */
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
      */

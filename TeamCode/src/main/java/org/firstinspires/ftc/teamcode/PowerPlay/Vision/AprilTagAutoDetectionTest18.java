@@ -20,6 +20,10 @@ package org.firstinspires.ftc.teamcode.PowerPlay.Vision;
  * SOFTWARE.
  */
 
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_1;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_2;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_3;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -55,7 +59,10 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
         // UNITS ARE METERS
         double tagsize = 0.05;
 
-        int ID_TAG_OF_INTEREST = 18; // Tag ID 18 from the 36h11 family
+       final static int ID_TAG_ZONE_1 = 1; // Tag ID 1 from the 36h11 family
+       final static int ID_TAG_ZONE_2 = 2; // Tag ID 2 from the 36h11 family
+       final static int ID_TAG_ZONE_3 = 3; // Tag ID 18 from the 36h11 family
+       public SignalLocation zoneOfInterest = null;
 
         AprilTagDetection tagOfInterest = null;
 
@@ -93,23 +100,39 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
             {
                 ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
 
-                if(currentDetections!= null && currentDetections.size() != 0)
+                if(currentDetections != null && currentDetections.size() != 0)
                 {
                     boolean tagFound = false;
 
                     for(AprilTagDetection tag : currentDetections)
                     {
-                        if(tag.id == ID_TAG_OF_INTEREST)
+                        if(tag.id == ID_TAG_ZONE_1)
                         {
                             tagOfInterest = tag;
                             tagFound = true;
+                            zoneOfInterest = ZONE_1;
+                            break;
+                        }
+                        if(tag.id == ID_TAG_ZONE_2)
+                        {
+                            tagOfInterest = tag;
+                            tagFound = true;
+                            zoneOfInterest = ZONE_2;
+                            break;
+                        }
+                        if(tag.id == ID_TAG_ZONE_3)
+                        {
+                            tagOfInterest = tag;
+                            tagFound = true;
+                            zoneOfInterest = ZONE_3;
                             break;
                         }
                     }
 
                     if(tagFound)
-                    {
+                    {   telemetry.addLine("Target zone" + zoneOfInterest);
                         telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
+
                         tagToTelemetry(tagOfInterest);
                     }
                     else

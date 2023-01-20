@@ -45,7 +45,8 @@ public class TeleOpMain extends LinearOpMode {
         // r2 has arrived.
         r2 = new PowerPlayRobot(this);
         r2.initHardware();
-
+        telemetry.addData("Version", r2.teleOpVersion);
+        telemetry.update();
         waitForStart();
         if (opModeIsActive()) {
             // Put run blocks here.

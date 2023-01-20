@@ -27,6 +27,7 @@ public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
     private final HardwareMap hardwareMap;
     public Telemetry telemetry;
+    public double teleOpVersion = 1.2;
 
     private DcMotorEx rfMotor;
     private DcMotorEx rrMotor;
@@ -70,8 +71,8 @@ public class PowerPlayRobot implements iRobot {
     private final double ticksPerInch = ticksPerMotorRevolution / wheelCircumferenceInInches;
 
     private final int lowerLiftLimit = 0;
-    private final int upperLiftLimit = 1000;
-    private final int upperLimitThreshold = 900;
+    private final int upperLiftLimit = 900;
+    private final int upperLimitThreshold = 800;
 
     // TODO: PIDF values must be updated to work for this year.
     private final double drivePositionPIDF1 = 2.0; // For distance >= 20"
@@ -238,20 +239,25 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(double power) {
-        if (liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed()) {
+        System.out.println("DEBUG - Power: " + liftMotor.getPower());
+        if (power < 0.0 && liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed()) {
+            System.out.println("TOO LOW!");
             liftMotor.setPower(0.0);
             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
         else if (liftMotor.getCurrentPosition() > upperLiftLimit) {
+            System.out.println("DEBUG: TOO HIGH!");
             liftMotor.setPower(0.0);
         }
-        if (power > 0 && liftMotor.getCurrentPosition() > upperLimitThreshold) {
+        if (power > 0.0 && liftMotor.getCurrentPosition() > upperLimitThreshold) {
+            System.out.println("DEBUG: Threshold");
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            liftMotor.setPower(power);
-            liftMotor.setTargetPosition(1000);
+            liftMotor.setPower(0.8 * power);
+            liftMotor.setTargetPosition(900);
             liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
         else {
+            System.out.println("DEBUG: Normal movement");
             liftMotor.setPower(power);
         }
     }

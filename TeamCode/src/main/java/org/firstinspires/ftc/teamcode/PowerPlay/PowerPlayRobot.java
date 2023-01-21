@@ -239,25 +239,17 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(double power) {
-        System.out.println("DEBUG - Power: " + liftMotor.getPower());
-        if (power < 0.0 && liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed()) {
-            System.out.println("TOO LOW!");
-            liftMotor.setPower(0.0);
+        if (liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed()) {
+            liftMotor.setPower(0.00);
             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
         else if (liftMotor.getCurrentPosition() > upperLiftLimit) {
-            System.out.println("DEBUG: TOO HIGH!");
-            liftMotor.setPower(0.0);
+            liftMotor.setPower(0);
         }
-        if (power > 0.0 && liftMotor.getCurrentPosition() > upperLimitThreshold) {
-            System.out.println("DEBUG: Threshold");
-            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            liftMotor.setPower(0.8 * power);
-            liftMotor.setTargetPosition(900);
-            liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        else if (power > 0.0 && liftMotor.getCurrentPosition() > upperLimitThreshold && liftMotor.getCurrentPosition() < upperLiftLimit) {
+            liftMotor.setPower(0.2);
         }
         else {
-            System.out.println("DEBUG: Normal movement");
             liftMotor.setPower(power);
         }
     }
@@ -543,8 +535,6 @@ public class PowerPlayRobot implements iRobot {
         if (!creator.opModeIsActive()) {
             throw new EmergencyStopException("Turn");
         }
-        // TODO: Remove telemetry after testing
-        System.out.println("[**]DEBUG - IMU: " + getIMUHeading());
         powerTheWheels(0, 0, 0, 0);
         hold(degrees);
     }

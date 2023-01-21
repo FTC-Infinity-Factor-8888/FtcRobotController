@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -41,6 +42,7 @@ public class PowerPlayRobot implements iRobot {
 
     private BNO055IMU imu;
     private TouchSensor limitSwitch;
+    private AnalogInput potentiometer;
 
     private DigitalChannel frontGreenLED;
     private DigitalChannel frontRedLED;
@@ -71,8 +73,8 @@ public class PowerPlayRobot implements iRobot {
     private final double ticksPerInch = ticksPerMotorRevolution / wheelCircumferenceInInches;
 
     private final int lowerLiftLimit = 0;
-    private final int upperLiftLimit = 900;
-    private final int upperLimitThreshold = 800;
+    private final int upperLiftLimit = 1000;
+    private final int upperLimitThreshold = 900;
 
     // TODO: PIDF values must be updated to work for this year.
     private final double drivePositionPIDF1 = 2.0; // For distance >= 20"
@@ -99,6 +101,8 @@ public class PowerPlayRobot implements iRobot {
         wristServo = hardwareMap.get(Servo.class, "WristServo");
 
         limitSwitch = hardwareMap.get(TouchSensor.class, "LimitSwitch");
+
+        potentiometer = hardwareMap.get(AnalogInput.class, "LiftAngleSensor");
 
         frontGreenLED = hardwareMap.get(DigitalChannel.class, "FrontGreenLED");
         frontRedLED = hardwareMap.get(DigitalChannel.class, "FrontRedLED");
@@ -148,6 +152,10 @@ public class PowerPlayRobot implements iRobot {
         telemetry.update();
     }
 
+    private double getPotentiometer() {
+        return potentiometer.getVoltage();
+    }
+
     /**
      * Displays telemetry information on the Driver Hub
      */
@@ -161,6 +169,7 @@ public class PowerPlayRobot implements iRobot {
         telemetry.addData("Power", "LF: %.1f, LR: %.1f, RF: %.1f, RR: %.1f",
                 lfMotor.getPower(), lrMotor.getPower(), rfMotor.getPower(), rrMotor.getPower());
         telemetry.addData("LiftPosition", liftMotor.getCurrentPosition());
+        telemetry.addData("Potentiometer", getPotentiometer());
         telemetry.addData("LiftPower", liftMotor.getPower());
         telemetry.addData("LimitSwitch", limitSwitch.isPressed());
 
@@ -239,19 +248,40 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotor(double power) {
-        if (liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed()) {
+        if (power < 0.0 && limitSwitch.isPressed()) {
             liftMotor.setPower(0.00);
             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            System.out.println("DEBUG: TOO LOW!");
         }
-        else if (liftMotor.getCurrentPosition() > upperLiftLimit) {
+        else if (power > 0.0 && getPotentiometer() > 1.8) {
             liftMotor.setPower(0);
+            System.out.println("DEBUG: TOO HIGH!");
         }
-        else if (power > 0.0 && liftMotor.getCurrentPosition() > upperLimitThreshold && liftMotor.getCurrentPosition() < upperLiftLimit) {
-            liftMotor.setPower(0.2);
+        else if (power > 0.0 && getPotentiometer() > 1.6) {
+            liftMotor.setPower(power); // change to 0.1 later
+            System.out.println("DEBUG: THRESHOLD!");
         }
         else {
             liftMotor.setPower(power);
+            System.out.println("DEBUG: CLEAR");
         }
+//        if (power < 0.0 && (liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed())) {
+//            liftMotor.setPower(0.00);
+//            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            System.out.println("DEBUG: TOO LOW!");
+//        }
+//        else if (liftMotor.getCurrentPosition() > upperLiftLimit || getPotentiometer() > 1.8) {
+//            liftMotor.setPower(0);
+//            System.out.println("DEBUG: TOO HIGH!");
+//        }
+//        else if (power > 0.0 && liftMotor.getCurrentPosition() > upperLimitThreshold && liftMotor.getCurrentPosition() < upperLiftLimit) {
+//            liftMotor.setPower(power); // change to 0.1 later
+//            System.out.println("DEBUG: THRESHOLD!");
+//        }
+//        else {
+//            liftMotor.setPower(power);
+//            System.out.println("DEBUG: CLEAR");
+//        }
     }
 
     public void liftMotorStop() {

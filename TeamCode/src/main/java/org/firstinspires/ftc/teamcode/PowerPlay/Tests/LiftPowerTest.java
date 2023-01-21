@@ -26,8 +26,9 @@ public class LiftPowerTest extends LinearOpMode {
             // Put run blocks here.
             while (opModeIsActive()) {
                 // Put loop blocks here.
-                double power = gamepad1.left_stick_y;
-                //r2.liftMotor(r2.UP, power);
+                double power = -1.0 * gamepad1.left_stick_y;
+                r2.liftMotor(power);
+                r2.telemetryDashboard("");
                 telemetry.update();
             }
         }

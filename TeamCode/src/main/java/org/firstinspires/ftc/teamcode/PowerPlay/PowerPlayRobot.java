@@ -85,9 +85,10 @@ public class PowerPlayRobot implements iRobot {
 
     private final static double MINIMUM_LIFT_POWER = 0.10;
 
-    private final int lowerLiftLimit = 0;
-    private final int upperLiftLimit = 1000;
-    private final int upperLimitThreshold = 900;
+    // TODO: Should delete variables if commented out lift code is deleted.
+//    private final int lowerLiftLimit = 0;
+//    private final int upperLiftLimit = 1000;
+//    private final int upperLimitThreshold = 900;
 
     // endOfLoop variables
     private double currentLiftPower;
@@ -200,7 +201,7 @@ public class PowerPlayRobot implements iRobot {
         telemetry.update();
     }
 
-    public SignalLocation getSignalLocation(){
+    public SignalLocation getSignalLocation() {
         return signalDetector.getSignalLocation();
     }
 

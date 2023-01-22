@@ -23,6 +23,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation;
 
 public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
@@ -48,6 +50,8 @@ public class PowerPlayRobot implements iRobot {
     private DigitalChannel frontRedLED;
     private DigitalChannel rearGreenLED;
     private DigitalChannel rearRedLED;
+    
+    private SignalDetector signalDetector;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -141,11 +145,15 @@ public class PowerPlayRobot implements iRobot {
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        signalDetector = new SignalDetector();
+
+        signalDetector.initalizeVision(hardwareMap);
+
         setLEDColor(LED.FRONT, Color.GREEN);
         setLEDColor(LED.REAR, Color.RED);
         initializeIMU();
-    }
 
+    }
     /**
      * Initializes IMU to give us the robots heading
      */
@@ -191,6 +199,11 @@ public class PowerPlayRobot implements iRobot {
         telemetry.addData("IMU Heading", "%.0f", imuHeading);
         telemetry.update();
     }
+
+    public SignalLocation getSignalLocation(){
+        return signalDetector.getSignalLocation();
+    }
+
 
     /**
      * @param direction  1 = forward, 0 = stop, -1 = backwards
@@ -357,6 +370,44 @@ public class PowerPlayRobot implements iRobot {
         }
         return currentLiftPower;
     }
+    
+    /*
+    public void liftMotorAuto(LiftPosition level) {
+        double liftSpeed = 0.6;
+        int targetPosition = 0; //floor position
+        switch (level) {
+            case BOTTOM:
+                targetPosition = 0;
+                break;
+            case LOW:
+                targetPosition = 65;
+                break;
+            case MEDIUM:
+                targetPosition = 130;
+                break;
+            case HIGH:
+                targetPosition = 430;
+                break;
+            case CAPPING:
+                targetPosition = 967;
+                break;
+        }
+        if (targetPosition > getPotentiometer()+0.5) {
+            while (getPotentiometer() < targetPosition && creator.opModeIsActive()) {
+                liftMotor.setPower(liftSpeed);
+            }
+        }
+        else if (targetPosition < getPotentiometer()-0.5) {
+            while (getPotentiometer() > targetPosition && creator.opModeIsActive()) {
+                liftMotor.setPower(-0.2);
+            }
+        }
+        while (creator.opModeIsActive()) {
+            liftMotor.setPower(-0.2);
+            liftMotor.setPower(0.2);
+        }
+    }
+ */
 
     public void intakeMotor(IntakePosition intakePosition) {
         double position = 0;

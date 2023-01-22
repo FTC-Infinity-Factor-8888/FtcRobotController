@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode.PowerPlay;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 
 @TeleOp(name = "TeleOpMain")
 public class TeleOpMain extends LinearOpMode {
@@ -18,8 +19,14 @@ public class TeleOpMain extends LinearOpMode {
         // Declaring the buttons that may quickly change:
         boolean liftUp;
         boolean liftDown;
+        boolean liftOverride;
+
         boolean intake;
         boolean outtake;
+
+        boolean wristUp;
+        boolean wristDown;
+        boolean wristMiddle;
 
         boolean lb;
         boolean rb;
@@ -38,16 +45,35 @@ public class TeleOpMain extends LinearOpMode {
         // r2 has arrived.
         r2 = new PowerPlayRobot(this);
         r2.initHardware();
-
+        telemetry.addData("Version", r2.teleOpVersion);
+        telemetry.update();
         waitForStart();
         if (opModeIsActive()) {
             // Put run blocks here.
             while (opModeIsActive()) {
                 // Put loop blocks here.
+
                 lb = gamepad1.left_bumper;
                 rb = gamepad1.right_bumper;
                 y = gamepad1.y;
                 a = gamepad1.a;
+
+                forwardInput = gamepad1.left_stick_y * direction; // Controls for moving back and forward.
+                strafeInput = gamepad1.left_stick_x * direction; // Controls for strafing.
+                rotateInput = gamepad1.right_stick_x; // Controls for pivoting.
+                accelerator = gamepad1.right_trigger;
+
+                liftUp = gamepad2.right_bumper;
+                liftDown = gamepad2.left_bumper;
+                liftOverride = gamepad2.b;
+
+                intake = gamepad2.a;
+                outtake = gamepad2.y;
+
+                wristUp = gamepad2.dpad_up;
+                wristDown = gamepad2.dpad_down;
+                wristMiddle = gamepad2.dpad_right;
+
                 if (lb && rb) {
                     if (y) {
                         direction = 1;
@@ -61,45 +87,45 @@ public class TeleOpMain extends LinearOpMode {
                     }
                 }
 
-                forwardInput = gamepad1.left_stick_y * direction; // Controls for moving back and forward.
-                strafeInput = gamepad1.left_stick_x * direction; // Controls for strafing.
-                rotateInput = gamepad1.right_stick_x; // Controls for pivoting.
-
-                // Controls to allow our robot to reach speeds up to maxSpeed.
-                accelerator = gamepad1.right_trigger;
-
                 r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
 
-                liftUp = gamepad2.right_bumper;
-                liftDown = gamepad2.left_bumper;
-
                 if (liftUp && !liftDown) {
-                    r2.liftMotor(r2.UP);
+                    r2.liftMotor(0.50);
                 }
                 else if (!liftUp && liftDown) {
-                    r2.liftMotor(r2.DOWN);
+                    r2.liftMotor(-0.20);
                 }
                 else {
+                    r2.liftMotorHold();
+                }
+
+                if (liftOverride) {
                     r2.liftMotorStop();
                 }
 
-                intake = gamepad2.a;
-                outtake = gamepad2.y;
                 if (intake && !outtake) {
-                    r2.intakeMotor(DcMotorSimple.Direction.FORWARD);
+                    r2.intakeMotor(IntakePosition.IN);
                 }
                 else if (!intake && outtake) {
-                    r2.intakeMotor(DcMotorSimple.Direction.REVERSE);
+                    r2.intakeMotor(IntakePosition.OUT);
                 }
-                else {
-                    r2.intakeStop();
+
+                if (wristUp && !wristDown && !wristMiddle) {
+                    r2.wristMotor(WristPosition.UP);
                 }
+                else if (!wristUp && wristDown && !wristMiddle) {
+                    r2.wristMotor(WristPosition.DOWN);
+                }
+                else if (!wristUp && !wristDown && wristMiddle) {
+                    r2.wristMotor(WristPosition.MIDDLE);
+                }
+
+                // Only handles liftPower
+                r2.endOfLoop();
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
-                telemetry.addData("Accelerator", accelerator);
-                telemetry.addData("Drive mode", direction);
-                telemetry.addData("Potentiometer", r2.getPotentiometer());
+                r2.telemetryDashboard("");
                 telemetry.update();
             }
         }

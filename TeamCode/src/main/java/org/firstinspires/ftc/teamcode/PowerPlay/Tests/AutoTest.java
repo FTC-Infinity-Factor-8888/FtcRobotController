@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.PowerPlay.Autonomous;
+package org.firstinspires.ftc.teamcode.PowerPlay.Tests;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.PowerPlay.PowerPlayRobot;
 
 // Put the cone in the blue robot butt and point it to where you want to go
-@Autonomous (name = "TerminalDrive")
-public class DriveToTerminal extends LinearOpMode {
+@Autonomous (name = "AutoTest")
+public class AutoTest extends LinearOpMode {
     PowerPlayRobot ewok;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -18,8 +18,9 @@ public class DriveToTerminal extends LinearOpMode {
 
         waitForStart();
         if(opModeIsActive()) {
-            ewok.drive(-37);
-            ewok.rotate(0);
+            ewok.rotate(90);
+            telemetry.update();
+            sleep(5000);
         }
     }
 }

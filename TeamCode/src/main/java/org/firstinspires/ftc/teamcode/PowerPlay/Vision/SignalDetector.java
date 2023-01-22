@@ -4,22 +4,18 @@ import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZON
 import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_2;
 import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_3;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.PowerPlay.PowerPlayRobot;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-//todo potentially import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
-@TeleOp
-public class SignalDetector extends LinearOpMode {
-    PowerPlayRobot ewok;
+
+public class SignalDetector {
 
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
@@ -45,9 +41,7 @@ public class SignalDetector extends LinearOpMode {
 
     AprilTagDetection tagOfInterest = null;
 
-    @Override
-    public void runOpMode() {   //todo: May have to change this vvvvvv
-        PowerPlayRobot ewok = new PowerPlayRobot(this);
+    public void initalizeVision(HardwareMap hardwareMap) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
@@ -64,71 +58,36 @@ public class SignalDetector extends LinearOpMode {
 
             }
         });
-
-        telemetry.setMsTransmissionInterval(50);
-
-        /*
-         * The INIT-loop:
-         * This REPLACES waitForStart!
-         */
-        while (!isStarted() && !isStopRequested()) {
-            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
-
-            if (currentDetections != null && currentDetections.size() != 0) {
-                boolean tagFound = false;
-
-                for (AprilTagDetection tag : currentDetections) {
-                    if (tag.id == ID_TAG_ZONE_1) {
-                        tagOfInterest = tag;
-                        tagFound = true;
-                        zoneOfInterest = ZONE_1;
-                        break;
-                    }
-                    if (tag.id == ID_TAG_ZONE_2) {
-                        tagOfInterest = tag;
-                        tagFound = true;
-                        zoneOfInterest = ZONE_2;
-                        break;
-                    }
-                    if (tag.id == ID_TAG_ZONE_3) {
-                        tagOfInterest = tag;
-                        tagFound = true;
-                        zoneOfInterest = ZONE_3;
-                        break;
-                    }
-                }
-
-                if (tagFound) {
-                    telemetry.addData("TargetZone", zoneOfInterest);
-                    telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
-
-                    tagToTelemetry(tagOfInterest);
-                } else {
-                    telemetry.addLine("Don't see tag of interest :(");
-
-                    if (tagOfInterest == null) {
-                        telemetry.addLine("(The tag has never been seen)");
-                    } else {
-                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                        tagToTelemetry(tagOfInterest);
-                    }
-                }
-
-            } else {
-                telemetry.addLine("Don't see tag of interest :(");
-
-                if (tagOfInterest == null) {
-                    telemetry.addLine("(The tag has never been seen)");
-                } else {
-                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                    tagToTelemetry(tagOfInterest);
-                }
-
-            }
-
-            telemetry.update();
-            sleep(20);
-        }
-
     }
+
+    public SignalLocation getSignalLocation() {
+        ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
+
+        if (currentDetections != null && currentDetections.size() != 0) {
+            boolean tagFound = false;
+
+            for (AprilTagDetection tag : currentDetections) {
+                if (tag.id == ID_TAG_ZONE_1) {
+                    tagOfInterest = tag;
+                    tagFound = true;
+                    zoneOfInterest = ZONE_1;
+                    break;
+                }
+                if (tag.id == ID_TAG_ZONE_2) {
+                    tagOfInterest = tag;
+                    tagFound = true;
+                    zoneOfInterest = ZONE_2;
+                    break;
+                }
+                if (tag.id == ID_TAG_ZONE_3) {
+                    tagOfInterest = tag;
+                    tagFound = true;
+                    zoneOfInterest = ZONE_3;
+                    break;
+                }
+            }
+        }
+        return zoneOfInterest;
+    }
+
 }

@@ -107,13 +107,10 @@ public class PowerPlayRobot implements iRobot {
         lrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        
         setLEDColor(LED.FRONT, Color.GREEN);
         setLEDColor(LED.REAR, Color.RED);
         initializeIMU();
-    }
-    private void initializeVison(){
-
     }
     /**
      * Initializes IMU to give us the robots heading

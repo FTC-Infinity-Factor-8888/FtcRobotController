@@ -86,4 +86,8 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
+<<<<<<< Updated upstream
 gradle.properties
+=======
+.idea/misc.xml
+>>>>>>> Stashed changes

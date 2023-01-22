@@ -20,6 +20,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation;
 
 public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
@@ -40,6 +42,8 @@ public class PowerPlayRobot implements iRobot {
     private DigitalChannel frontRedLED;
     private DigitalChannel rearGreenLED;
     private DigitalChannel rearRedLED;
+
+    private SignalDetector signalDetector;
 
     public final DcMotorSimple.Direction UP = DcMotorSimple.Direction.REVERSE;
     public final DcMotorSimple.Direction DOWN = DcMotorSimple.Direction.FORWARD;
@@ -107,10 +111,14 @@ public class PowerPlayRobot implements iRobot {
         lrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        
+
+        SignalDetector signalDetector = new SignalDetector();
+
+        signalDetector.initalizeVision(hardwareMap);
         setLEDColor(LED.FRONT, Color.GREEN);
         setLEDColor(LED.REAR, Color.RED);
         initializeIMU();
+
     }
     /**
      * Initializes IMU to give us the robots heading
@@ -156,6 +164,11 @@ public class PowerPlayRobot implements iRobot {
         telemetry.addData("IMU Heading", "%.0f", imuHeading);
         telemetry.update();
     }
+
+    public SignalLocation getSignalLocation(){
+        return signalDetector.getSignalLocation();
+    }
+
 
     /**
      * @param direction  1 = forward, 0 = stop, -1 = backwards

@@ -112,7 +112,7 @@ public class PowerPlayRobot implements iRobot {
         rfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        SignalDetector signalDetector = new SignalDetector();
+        signalDetector = new SignalDetector();
 
         signalDetector.initalizeVision(hardwareMap);
         setLEDColor(LED.FRONT, Color.GREEN);

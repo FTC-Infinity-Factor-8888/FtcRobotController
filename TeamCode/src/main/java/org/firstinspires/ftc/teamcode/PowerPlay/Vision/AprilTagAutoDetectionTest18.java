@@ -59,9 +59,9 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
         // UNITS ARE METERS
         double tagsize = 0.05;
 
-       final static int ID_TAG_ZONE_1 = 1; // Tag ID 1 from the 36h11 family
-       final static int ID_TAG_ZONE_2 = 2; // Tag ID 2 from the 36h11 family
-       final static int ID_TAG_ZONE_3 = 3; // Tag ID 18 from the 36h11 family
+       final static int ID_TAG_ZONE_1 = 18; // Tag ID 18 from the 36h11 family
+       final static int ID_TAG_ZONE_2 = 0; // Tag ID 0 from the 36h11 family
+       final static int ID_TAG_ZONE_3 = 10; // Tag ID 10 from the 36h11 family
        public SignalLocation zoneOfInterest = null;
 
         AprilTagDetection tagOfInterest = null;
@@ -130,7 +130,7 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
                     }
 
                     if(tagFound)
-                    {   telemetry.addLine("Target zone" + zoneOfInterest);
+                    {   telemetry.addData("TargetZone", zoneOfInterest);
                         telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
 
                         tagToTelemetry(tagOfInterest);

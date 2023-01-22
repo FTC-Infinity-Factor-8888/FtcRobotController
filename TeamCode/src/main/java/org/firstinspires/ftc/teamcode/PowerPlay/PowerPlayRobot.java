@@ -112,7 +112,9 @@ public class PowerPlayRobot implements iRobot {
         setLEDColor(LED.REAR, Color.RED);
         initializeIMU();
     }
+    private void initializeVison(){
 
+    }
     /**
      * Initializes IMU to give us the robots heading
      */

@@ -69,7 +69,7 @@ public class AprilTagAutoDetectionTest18 extends LinearOpMode
         @Override
         public void runOpMode()
         {   //todo: May have to change this vvvvvv
-            ewok = new PowerPlayRobot(this);
+            PowerPlayRobot ewok = new PowerPlayRobot(this);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);

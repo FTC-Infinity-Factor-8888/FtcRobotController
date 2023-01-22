@@ -72,9 +72,22 @@ public class PowerPlayRobot implements iRobot {
     private final double ticksPerMotorRevolution = 530.3;
     private final double ticksPerInch = ticksPerMotorRevolution / wheelCircumferenceInInches;
 
+    private final static double LIFT_UPPER_HARD_LIMIT = 1.8;
+    private final static double LIFT_UPPER_THRESHOLD_LIMIT = 1.6;
+    private final static double LIFT_LOWER_HARD_LIMIT = 0.96;
+
+    private final static double INCREMENT_WITH_GRAVITY = 0.02;
+    private final static double INCREMENT_AGAINST_GRAVITY = 0.02;
+
+    private final static double MINIMUM_LIFT_POWER = 0.10;
+
     private final int lowerLiftLimit = 0;
     private final int upperLiftLimit = 1000;
     private final int upperLimitThreshold = 900;
+
+    // endOfLoop variables
+    private double currentLiftPower;
+    private double targetLiftPower;
 
     // TODO: PIDF values must be updated to work for this year.
     private final double drivePositionPIDF1 = 2.0; // For distance >= 20"
@@ -247,24 +260,30 @@ public class PowerPlayRobot implements iRobot {
         System.out.println("DEBUG: Delta power (left): " + leftSpeed + " (right): " + rightSpeed);
     }
 
-    public void liftMotor(double power) {
-        if (power < 0.0 && limitSwitch.isPressed()) {
-            liftMotor.setPower(0.00);
+    /**
+     * This is to handle anything that we deferred to the end of the loop which needs to be handled now.
+     * Right now, the only thing that uses this method is the liftMotor.
+     */
+    public void endOfLoop() {
+        double currentPosition = getPotentiometer();
+        currentLiftPower = calculateCurrentLiftPower(currentLiftPower, targetLiftPower);
+
+        if (currentLiftPower < 0.0 && (limitSwitch.isPressed() || currentPosition <= LIFT_LOWER_HARD_LIMIT)) {
+            currentLiftPower = 0.0;
             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            System.out.println("DEBUG: TOO LOW!");
         }
-        else if (power > 0.0 && getPotentiometer() > 1.8) {
-            liftMotor.setPower(0);
-            System.out.println("DEBUG: TOO HIGH!");
+        else if (currentLiftPower > 0.0 && currentPosition >= LIFT_UPPER_HARD_LIMIT) {
+            currentLiftPower = getLiftHoldPower(currentPosition);
         }
-        else if (power > 0.0 && getPotentiometer() > 1.6) {
-            liftMotor.setPower(power); // change to 0.1 later
-            System.out.println("DEBUG: THRESHOLD!");
+        else if (currentLiftPower > 0.0 && currentPosition > LIFT_UPPER_THRESHOLD_LIMIT) {
+            targetLiftPower = getLiftHoldPower(LIFT_UPPER_HARD_LIMIT);
+            currentLiftPower = calculateCurrentLiftPower(currentLiftPower, targetLiftPower);
         }
-        else {
-            liftMotor.setPower(power);
-            System.out.println("DEBUG: CLEAR");
-        }
+        liftMotor.setPower(currentLiftPower);
+    }
+
+    public void liftMotor(double power) {
+        targetLiftPower = power;
 //        if (power < 0.0 && (liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed())) {
 //            liftMotor.setPower(0.00);
 //            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -284,8 +303,59 @@ public class PowerPlayRobot implements iRobot {
 //        }
     }
 
+    public void liftMotorHold() {
+        targetLiftPower = getLiftHoldPower(getPotentiometer());
+    }
+
     public void liftMotorStop() {
-        liftMotor.setPower(0.0);
+        targetLiftPower = 0.00;
+        currentLiftPower = 0.00;
+        liftMotor.setPower(0.00);
+    }
+
+    private double getLiftHoldPower(double currentPosition) {
+        return 0.00;
+    }
+
+    /**
+     * If the currentLiftPower is not equal to the target, change it so that it trends towards that
+     * @param currentLiftPower The current power being set to the lift
+     * @param targetLiftPower The target power to be reached
+     * @return Returns the new current power to be set
+     */
+    private double calculateCurrentLiftPower(double currentLiftPower, double targetLiftPower) {
+        if (currentLiftPower == targetLiftPower) {
+            return currentLiftPower;
+        }
+
+        if (currentLiftPower > 0) {
+            if (currentLiftPower > targetLiftPower) {
+                currentLiftPower -= INCREMENT_AGAINST_GRAVITY;
+                return currentLiftPower;
+            }
+            // currentLiftPower is less than target
+            currentLiftPower += INCREMENT_AGAINST_GRAVITY;
+            return currentLiftPower;
+        }
+
+        if (currentLiftPower < 0) {
+            if (currentLiftPower > targetLiftPower) {
+                currentLiftPower -= INCREMENT_WITH_GRAVITY;
+                return currentLiftPower;
+            }
+            // currentLiftPower is less than target
+            currentLiftPower += INCREMENT_WITH_GRAVITY;
+            return  currentLiftPower;
+        }
+
+        // currentLiftPower is zero. Set us in the direction of the target at the minimum
+        if (targetLiftPower > 0) {
+            currentLiftPower = MINIMUM_LIFT_POWER;
+        }
+        else if (targetLiftPower < 0) {
+            currentLiftPower = -MINIMUM_LIFT_POWER;
+        }
+        return currentLiftPower;
     }
 
     public void intakeMotor(IntakePosition intakePosition) {

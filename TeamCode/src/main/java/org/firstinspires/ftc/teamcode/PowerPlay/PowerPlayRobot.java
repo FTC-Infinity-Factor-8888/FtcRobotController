@@ -284,7 +284,6 @@ public class PowerPlayRobot implements iRobot {
 
         if (currentLiftPower < 0.0 && (limitSwitch.isPressed() || currentPosition <= LIFT_LOWER_HARD_LIMIT)) {
             currentLiftPower = 0.0;
-            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
         else if (currentLiftPower > 0.0 && currentPosition >= LIFT_UPPER_HARD_LIMIT) {
             currentLiftPower = getLiftHoldPower(currentPosition);

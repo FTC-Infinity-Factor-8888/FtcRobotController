@@ -20,6 +20,7 @@ public class TeleOpMain extends LinearOpMode {
         boolean liftUp;
         boolean liftDown;
         boolean liftOverride;
+        double liftDecelerator;
 
         boolean intake;
         boolean outtake;
@@ -66,6 +67,7 @@ public class TeleOpMain extends LinearOpMode {
                 liftUp = gamepad2.right_bumper;
                 liftDown = gamepad2.left_bumper;
                 liftOverride = gamepad2.b;
+                liftDecelerator = gamepad2.left_trigger;
 
                 intake = gamepad2.a;
                 outtake = gamepad2.y;
@@ -90,7 +92,7 @@ public class TeleOpMain extends LinearOpMode {
                 r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
 
                 if (liftUp && !liftDown) {
-                    r2.liftMotor(0.50);
+                    r2.liftMotor(0.50 - 0.50 * liftDecelerator);
                 }
                 else if (!liftUp && liftDown) {
                     r2.liftMotor(-0.20);

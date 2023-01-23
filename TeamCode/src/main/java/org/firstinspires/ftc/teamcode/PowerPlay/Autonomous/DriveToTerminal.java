@@ -19,7 +19,7 @@ public class DriveToTerminal extends LinearOpMode {
         waitForStart();
         if(opModeIsActive()) {
             ewok.drive(-37);
-            ewok.rotate(0);
+            ewok.drive(4);
         }
     }
 }

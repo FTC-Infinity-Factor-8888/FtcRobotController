@@ -719,6 +719,7 @@ public class PowerPlayRobot implements iRobot {
         if (percentAcceleration > 0) {addendSpeed = accelerationSpeed;}
         else if (percentAcceleration < 0) {addendSpeed = decelerationSpeed;}
         else {addendSpeed = 0;}
+        percentAcceleration = Math.abs(percentAcceleration); // Negative percentage is only to determine acceleration or deceleration. 
 
         double projectedPower = Math.abs(motorSpeed) + addendSpeed * percentAcceleration;
         if (projectedPower > MAX_ROBOT_SPEED || projectedPower < MIN_ROBOT_SPEED) {

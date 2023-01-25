@@ -194,7 +194,8 @@ public class PowerPlayRobot implements iRobot {
         double imuHeading = getIMUHeading();
 
         telemetry.addData("IMU Heading", "%.0f", imuHeading);
-        telemetry.update();
+        // TODO: Temporarily removed for TeleOp testing
+        // telemetry.update();
     }
 
     public SignalLocation getSignalLocation() {

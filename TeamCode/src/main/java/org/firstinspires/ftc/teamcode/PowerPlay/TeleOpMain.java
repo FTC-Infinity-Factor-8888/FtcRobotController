@@ -28,6 +28,8 @@ public class TeleOpMain extends LinearOpMode {
         boolean wristUp;
         boolean wristDown;
         boolean wristMiddle;
+        double wristPosition;
+        boolean setWristPosition;
 
         boolean lb;
         boolean rb;
@@ -37,7 +39,10 @@ public class TeleOpMain extends LinearOpMode {
         double forwardInput;
         double strafeInput;
         double rotateInput;
-        double accelerator;
+        double accelerator; // A magnitude of acceleration
+        double decelerator; // A magnitude of deceleration
+        double accelerationVector; // An acceleration with direction
+
         int direction = 1;
 
         // Declaring the former values of the buttons, so we can tell if they changed.
@@ -63,6 +68,7 @@ public class TeleOpMain extends LinearOpMode {
                 strafeInput = gamepad1.left_stick_x * direction; // Controls for strafing.
                 rotateInput = gamepad1.right_stick_x; // Controls for pivoting.
                 accelerator = gamepad1.right_trigger;
+                decelerator = gamepad1.left_trigger;
 
                 liftUp = gamepad2.right_bumper;
                 liftDown = gamepad2.left_bumper;
@@ -75,7 +81,10 @@ public class TeleOpMain extends LinearOpMode {
                 wristUp = gamepad2.dpad_up;
                 wristDown = gamepad2.dpad_down;
                 wristMiddle = gamepad2.dpad_right;
+                wristPosition = gamepad2.left_stick_y;
+                setWristPosition = gamepad2.x;
 
+                // Drive inversion code
                 if (lb && rb) {
                     if (y) {
                         direction = 1;
@@ -89,8 +98,13 @@ public class TeleOpMain extends LinearOpMode {
                     }
                 }
 
-                r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
+                // Drive code
+                if (accelerator != 0 && decelerator == 0) {accelerationVector = accelerator;}
+                else if (accelerator == 0 && decelerator != 0) {accelerationVector = -decelerator;}
+                else {accelerationVector = 0;}
+                r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerationVector);
 
+                // Lift code
                 if (liftUp && !liftDown) {
                     r2.liftMotor(0.50 - 0.50 * liftDecelerator);
                 }
@@ -105,6 +119,7 @@ public class TeleOpMain extends LinearOpMode {
                     r2.liftMotorStop();
                 }
 
+                // Intake code
                 if (intake && !outtake) {
                     r2.intakeMotor(IntakePosition.IN);
                 }
@@ -112,6 +127,7 @@ public class TeleOpMain extends LinearOpMode {
                     r2.intakeMotor(IntakePosition.OUT);
                 }
 
+                // Wrist presets code
                 if (wristUp && !wristDown && !wristMiddle) {
                     r2.wristMotor(WristPosition.UP);
                 }
@@ -120,6 +136,11 @@ public class TeleOpMain extends LinearOpMode {
                 }
                 else if (!wristUp && !wristDown && wristMiddle) {
                     r2.wristMotor(WristPosition.MIDDLE);
+                }
+
+                // Wrist manual code
+                if (setWristPosition) {
+                    r2.wristMotor(wristPosition);
                 }
 
                 // Only handles liftPower

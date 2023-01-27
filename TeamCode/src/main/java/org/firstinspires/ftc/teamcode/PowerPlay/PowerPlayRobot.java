@@ -386,24 +386,6 @@ public class PowerPlayRobot implements iRobot {
         wristServo.setPosition(position);
     }
 
-//        switch (level) {
-//            case BOTTOM:
-//                targetPosition = 0;
-//                break;
-//            case LOW:
-//                targetPosition = 65;
-//                break;
-//            case MEDIUM:
-//                targetPosition = 130;
-//                break;
-//            case HIGH:
-//                targetPosition = 430;
-//                break;
-//            case CAPPING:
-//                targetPosition = 967;
-//                break;
-//        }
-
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
      */
@@ -731,6 +713,19 @@ public class PowerPlayRobot implements iRobot {
                 }
                 else if (motorSpeed < 0) {
                     motorSpeed = -NORMAL_ROBOT_SPEED;
+                    motor.setPower(motorSpeed - addendSpeed * percentAcceleration);
+                }
+                else {
+                    motor.setPower(0);
+                }
+            }
+            else if (Math.abs(motorSpeed) < MIN_ROBOT_SPEED) {
+                if (motorSpeed > 0) {
+                    motorSpeed = MIN_ROBOT_SPEED;
+                    motor.setPower(motorSpeed + addendSpeed * percentAcceleration);
+                }
+                else if (motorSpeed < 0) {
+                    motorSpeed = -MIN_ROBOT_SPEED;
                     motor.setPower(motorSpeed - addendSpeed * percentAcceleration);
                 }
                 else {

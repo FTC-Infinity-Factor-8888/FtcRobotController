@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 
-@TeleOp(name = "TeleOpMain")
-public class TeleOpMain extends LinearOpMode {
+@TeleOp(name = "TeleOpBeta")
+public class TeleOpBeta extends LinearOpMode {
     PowerPlayRobot r2;
 
     //This function is executed when this Op Mode is selected from the Driver Station.
@@ -28,6 +28,8 @@ public class TeleOpMain extends LinearOpMode {
         boolean wristUp;
         boolean wristDown;
         boolean wristMiddle;
+        double wristPosition;
+        boolean setWristPosition;
 
         boolean lb;
         boolean rb;
@@ -37,7 +39,10 @@ public class TeleOpMain extends LinearOpMode {
         double forwardInput;
         double strafeInput;
         double rotateInput;
-        double accelerator;
+        double accelerator; // A magnitude of acceleration
+        double decelerator; // A magnitude of deceleration
+        double boostDirection; // Tells drive function whether to decelerate or accelerate.
+
         int direction = 1;
 
         // Declaring the former values of the buttons, so we can tell if they changed.
@@ -63,6 +68,7 @@ public class TeleOpMain extends LinearOpMode {
                 strafeInput = gamepad1.left_stick_x * direction; // Controls for strafing.
                 rotateInput = gamepad1.right_stick_x; // Controls for pivoting.
                 accelerator = gamepad1.right_trigger;
+                decelerator = gamepad1.left_trigger;
 
                 liftUp = gamepad2.right_bumper;
                 liftDown = gamepad2.left_bumper;
@@ -75,7 +81,10 @@ public class TeleOpMain extends LinearOpMode {
                 wristUp = gamepad2.dpad_up;
                 wristDown = gamepad2.dpad_down;
                 wristMiddle = gamepad2.dpad_right;
+                wristPosition = -gamepad2.left_stick_y;  // The joysticks are inverted to make up the positive direction and down the negative direction
+                setWristPosition = gamepad2.x;
 
+                // Drive inversion code
                 if (lb && rb) {
                     if (y) {
                         direction = 1;
@@ -89,8 +98,21 @@ public class TeleOpMain extends LinearOpMode {
                     }
                 }
 
-                r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator);
+                // Drive code
+                if (accelerator != 0 && decelerator == 0) {  // Accelerate
+                    r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator, 1.0);
+                    telemetry.addData("Acceleration","accelerating");
+                }
+                else if (accelerator == 0 && decelerator != 0) {  // Decelerate
+                    r2.driveXYRB(strafeInput, forwardInput, rotateInput, decelerator, -1.0);
+                    telemetry.addData("Acceleration", "decelerating");
+                }
+                else {  // If both triggers are pressed, don't accelerate in either direction
+                    r2.driveXYRB(strafeInput, forwardInput, rotateInput, 0.0, 1.0);
+                    telemetry.addData("Acceleration", "null");
+                }
 
+                // Lift code
                 if (liftUp && !liftDown) {
                     r2.liftMotor(0.50 - 0.50 * liftDecelerator);
                 }
@@ -105,6 +127,7 @@ public class TeleOpMain extends LinearOpMode {
                     r2.liftMotorStop();
                 }
 
+                // Intake code
                 if (intake && !outtake) {
                     r2.intakeMotor(IntakePosition.IN);
                 }
@@ -112,6 +135,7 @@ public class TeleOpMain extends LinearOpMode {
                     r2.intakeMotor(IntakePosition.OUT);
                 }
 
+                // Wrist presets code
                 if (wristUp && !wristDown && !wristMiddle) {
                     r2.wristMotor(WristPosition.UP);
                 }
@@ -122,12 +146,19 @@ public class TeleOpMain extends LinearOpMode {
                     r2.wristMotor(WristPosition.MIDDLE);
                 }
 
+                // Wrist manual code
+                if (setWristPosition) {
+                    r2.wristMotor(wristPosition);
+                }
+
                 // Only handles liftPower
                 r2.endOfLoop();
 
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
                 r2.telemetryDashboard("");
+                telemetry.addData("Accelerator", accelerator);
+                telemetry.addData("Decelerator", decelerator);
                 telemetry.update();
             }
         }

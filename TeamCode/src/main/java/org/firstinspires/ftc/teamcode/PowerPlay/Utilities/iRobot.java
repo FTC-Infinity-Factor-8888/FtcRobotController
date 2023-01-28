@@ -45,8 +45,9 @@ public interface iRobot {
      * @param y Accepts between -1.0 and 1.0 Negative y is backwards, and positive y is forwards
      * @param r (rotate)Accepts between -1.0 and 1.0 Negative degrees is counterclockwise, and positive degrees is clockwise.
      * @param b (boost) Accepts between 0 and 1.0. The percentage of extra speed that you want the robot to go past the normalSpeed.
+     * @param bd (boost direction) Accepts a value of -1 or 1. This determines whether we accelerate or decelerate.
      */
-    void driveXYRB(double x, double y, double r, double b);
+    void driveXYRB(double x, double y, double r, double b, double bd);
 
     /**
      *

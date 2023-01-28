@@ -30,7 +30,7 @@ public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
     private final HardwareMap hardwareMap;
     public Telemetry telemetry;
-    public double teleOpVersion = 1.2;
+    public double teleOpVersion = 1.3;
 
     private DcMotorEx rfMotor;
     private DcMotorEx rrMotor;
@@ -54,6 +54,7 @@ public class PowerPlayRobot implements iRobot {
     private SignalDetector signalDetector;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
+    private final double NORMAL_ROBOT_SPEED = 0.65; // The normal speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
     private final double MIN_ROBOT_SPEED = 0.40; // The minimum speed we can have our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
@@ -84,11 +85,6 @@ public class PowerPlayRobot implements iRobot {
     private final static double INCREMENT_AGAINST_GRAVITY = 0.02;
 
     private final static double MINIMUM_LIFT_POWER = 0.10;
-
-    // TODO: Should delete variables if commented out lift code is deleted.
-//    private final int lowerLiftLimit = 0;
-//    private final int upperLiftLimit = 1000;
-//    private final int upperLimitThreshold = 900;
 
     // endOfLoop variables
     private double currentLiftPower;
@@ -198,7 +194,8 @@ public class PowerPlayRobot implements iRobot {
         double imuHeading = getIMUHeading();
 
         telemetry.addData("IMU Heading", "%.0f", imuHeading);
-        telemetry.update();
+        // TODO: Temporarily removed for TeleOp testing
+        // telemetry.update();
     }
 
     public SignalLocation getZoneOfInterest() {
@@ -297,23 +294,6 @@ public class PowerPlayRobot implements iRobot {
 
     public void liftMotor(double power) {
         targetLiftPower = power;
-//        if (power < 0.0 && (liftMotor.getCurrentPosition() < lowerLiftLimit || limitSwitch.isPressed())) {
-//            liftMotor.setPower(0.00);
-//            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//            System.out.println("DEBUG: TOO LOW!");
-//        }
-//        else if (liftMotor.getCurrentPosition() > upperLiftLimit || getPotentiometer() > 1.8) {
-//            liftMotor.setPower(0);
-//            System.out.println("DEBUG: TOO HIGH!");
-//        }
-//        else if (power > 0.0 && liftMotor.getCurrentPosition() > upperLimitThreshold && liftMotor.getCurrentPosition() < upperLiftLimit) {
-//            liftMotor.setPower(power); // change to 0.1 later
-//            System.out.println("DEBUG: THRESHOLD!");
-//        }
-//        else {
-//            liftMotor.setPower(power);
-//            System.out.println("DEBUG: CLEAR");
-//        }
     }
 
     public void liftMotorHold() {
@@ -370,44 +350,6 @@ public class PowerPlayRobot implements iRobot {
         }
         return currentLiftPower;
     }
-    
-    /*
-    public void liftMotorAuto(LiftPosition level) {
-        double liftSpeed = 0.6;
-        int targetPosition = 0; //floor position
-        switch (level) {
-            case BOTTOM:
-                targetPosition = 0;
-                break;
-            case LOW:
-                targetPosition = 65;
-                break;
-            case MEDIUM:
-                targetPosition = 130;
-                break;
-            case HIGH:
-                targetPosition = 430;
-                break;
-            case CAPPING:
-                targetPosition = 967;
-                break;
-        }
-        if (targetPosition > getPotentiometer()+0.5) {
-            while (getPotentiometer() < targetPosition && creator.opModeIsActive()) {
-                liftMotor.setPower(liftSpeed);
-            }
-        }
-        else if (targetPosition < getPotentiometer()-0.5) {
-            while (getPotentiometer() > targetPosition && creator.opModeIsActive()) {
-                liftMotor.setPower(-0.2);
-            }
-        }
-        while (creator.opModeIsActive()) {
-            liftMotor.setPower(-0.2);
-            liftMotor.setPower(0.2);
-        }
-    }
- */
 
     public void intakeMotor(IntakePosition intakePosition) {
         double position = 0;
@@ -420,6 +362,11 @@ public class PowerPlayRobot implements iRobot {
                 break;
         }
         intakeServo.setPosition(position);
+    }
+
+    public void wristMotor(double wristPosition) {
+        wristPosition = 0.5 * wristPosition + 0.5; // Converts range of [-1,1] to [0,1]
+        wristServo.setPosition(wristPosition);
     }
 
     public void wristMotor(WristPosition wristPosition) {
@@ -438,24 +385,6 @@ public class PowerPlayRobot implements iRobot {
         }
         wristServo.setPosition(position);
     }
-
-//        switch (level) {
-//            case BOTTOM:
-//                targetPosition = 0;
-//                break;
-//            case LOW:
-//                targetPosition = 65;
-//                break;
-//            case MEDIUM:
-//                targetPosition = 130;
-//                break;
-//            case HIGH:
-//                targetPosition = 430;
-//                break;
-//            case CAPPING:
-//                targetPosition = 967;
-//                break;
-//        }
 
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards
@@ -758,118 +687,82 @@ public class PowerPlayRobot implements iRobot {
         }
     }
 
-    @Override
-    public void driveXYRB(double x, double y, double r, double b) {
-        // The normal speed our robot should be driving at.
-        double normalSpeed = 0.65;
+    /**
+     * Sets the appropriate speeds for motors after acceleration of deceleration (TeleOp).
+     * Confirms that speeds being set will not exceed the maximum or minimum
+     * @param motorSpeed the speed of a motor before acceleration or deceleration has been applied
+     * @param percentAcceleration the percent of acceleration or deceleration that a motor will use. This value should be acquired from a gamepad. Positive value for acceleration, negative for deceleration.
+     */
+    private void setPowerWithAcceleration(DcMotorEx motor, double motorSpeed, double percentAcceleration, double accelerationDirection) {
+        // The acceleration speed set on normal speed.
+        double accelerationSpeed = 0.0;
+        if (accelerationDirection == -1.0) {
+            accelerationSpeed = MIN_ROBOT_SPEED - NORMAL_ROBOT_SPEED;
+        }
+        else if (accelerationDirection == 1.0) {
+            accelerationSpeed = MAX_ROBOT_SPEED - NORMAL_ROBOT_SPEED;
+        }
 
+        double projectedPower = Math.abs(motorSpeed) + (accelerationSpeed * percentAcceleration);
+        if (projectedPower > MAX_ROBOT_SPEED || projectedPower < MIN_ROBOT_SPEED) {
+            if (Math.abs(motorSpeed) > NORMAL_ROBOT_SPEED) {
+                if (motorSpeed > 0) {
+                    motorSpeed = NORMAL_ROBOT_SPEED;
+                    motor.setPower(motorSpeed + (accelerationSpeed * percentAcceleration));
+                }
+                else if (motorSpeed < 0) {
+                    motorSpeed = -NORMAL_ROBOT_SPEED;
+                    motor.setPower(motorSpeed - (accelerationSpeed * percentAcceleration));
+                }
+                else {
+                    motor.setPower(0);
+                }
+            }
+            else if (Math.abs(motorSpeed) < MIN_ROBOT_SPEED) {
+                if (motorSpeed > 0) {
+                    motorSpeed = MIN_ROBOT_SPEED;
+                    motor.setPower(motorSpeed + (accelerationSpeed * percentAcceleration));
+                }
+                else if (motorSpeed < 0) {
+                    motorSpeed = -MIN_ROBOT_SPEED;
+                    motor.setPower(motorSpeed - (accelerationSpeed * percentAcceleration));
+                }
+                else {
+                    motor.setPower(0);
+                }
+            }
+        }
+        else {
+            if (motorSpeed > 0) {
+                motor.setPower(motorSpeed + (accelerationSpeed * percentAcceleration));
+            }
+            else if (motorSpeed < 0) {
+                motor.setPower(motorSpeed - (accelerationSpeed * percentAcceleration));
+            }
+            else {
+                motor.setPower(0);
+            }
+        }
+    }
+
+    @Override
+    public void driveXYRB(double x, double y, double r, double b, double bd) {
         /*
             Because we use Mecanum wheels, we can move forward, rotate, and strafe.
             Here, we are taking into account the direction each wheel should travel at in
             order to move in the direction we want the robot to move.
         */
-        // Left Front motor speed.
-        double lfSpeed = -((y - x - r) * normalSpeed);
-        // Right Front motor speed.
-        double rfSpeed = -((y + x + r) * normalSpeed);
-        // Left Rear motor speed.
-        double lrSpeed = -((y + x - r) * normalSpeed);
-        // Right Rear motor speed.
-        double rrSpeed = -((y - x + r) * normalSpeed);
+        double lfSpeed = -((y - x - r) * NORMAL_ROBOT_SPEED);  // Left Front motor speed.
+        double rfSpeed = -((y + x + r) * NORMAL_ROBOT_SPEED);  // Right Front motor speed.
+        double lrSpeed = -((y + x - r) * NORMAL_ROBOT_SPEED);  // Left Rear motor speed.
+        double rrSpeed = -((y - x + r) * NORMAL_ROBOT_SPEED);  // Right Rear motor speed.
 
-        // The acceleration speed set on normal speed.
-        double accelerationSpeed = MAX_ROBOT_SPEED - normalSpeed;
-        if (Math.abs(lfSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
-            if (Math.abs(lfSpeed) > normalSpeed) {
-                if (lfSpeed > 0) {
-                    lfSpeed = normalSpeed;
-                    lfMotor.setPower(lfSpeed + accelerationSpeed * b);
-                } else if (lfSpeed < 0) {
-                    lfSpeed = -normalSpeed;
-                    lfMotor.setPower(lfSpeed - accelerationSpeed * b);
-                } else {
-                    lfMotor.setPower(0);
-                }
-            }
-        }
-        else {
-            if (lfSpeed > 0) {
-                lfMotor.setPower(lfSpeed + accelerationSpeed * b);
-            } else if (lfSpeed < 0) {
-                lfMotor.setPower(lfSpeed - accelerationSpeed * b);
-            } else {
-                lfMotor.setPower(0);
-            }
-        }
+        // Calculates and sets power based on its arguments
+        setPowerWithAcceleration(lfMotor, lfSpeed, b, bd);
+        setPowerWithAcceleration(rfMotor, rfSpeed, b, bd);
+        setPowerWithAcceleration(lrMotor, lrSpeed, b, bd);
+        setPowerWithAcceleration(rrMotor, rrSpeed, b, bd);
 
-        if (Math.abs(rfSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
-            if (Math.abs(rfSpeed) > normalSpeed) {
-                if (rfSpeed > 0) {
-                    rfSpeed = normalSpeed;
-                    rfMotor.setPower(rfSpeed + accelerationSpeed * b);
-                } else if (rfSpeed < 0) {
-                    rfSpeed = -normalSpeed;
-                    rfMotor.setPower(rfSpeed - accelerationSpeed * b);
-                } else {
-                    rfMotor.setPower(0);
-                }
-            }
-        }
-        else {
-            if (rfSpeed > 0) {
-                rfMotor.setPower(rfSpeed + accelerationSpeed * b);
-            } else if (rfSpeed < 0) {
-                rfMotor.setPower(rfSpeed - accelerationSpeed * b);
-            } else {
-                rfMotor.setPower(0);
-            }
-        }
-
-        if (Math.abs(lrSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
-            if (Math.abs(lrSpeed) > normalSpeed) {
-                if (lrSpeed > 0) {
-                    lrSpeed = normalSpeed;
-                    lrMotor.setPower(lrSpeed + accelerationSpeed * b);
-                } else if (lrSpeed < 0) {
-                    lrSpeed = -normalSpeed;
-                    lrMotor.setPower(lrSpeed - accelerationSpeed * b);
-                } else {
-                    lrMotor.setPower(0);
-                }
-            }
-        }
-        else {
-            if (lrSpeed > 0) {
-                lrMotor.setPower(lrSpeed + accelerationSpeed * b);
-            } else if (lrSpeed < 0) {
-                lrMotor.setPower(lrSpeed - accelerationSpeed * b);
-            } else {
-                lrMotor.setPower(0);
-            }
-        }
-
-        if (Math.abs(rrSpeed) + accelerationSpeed * b > MAX_ROBOT_SPEED) {
-            if (Math.abs(rrSpeed) > normalSpeed) {
-                if (rrSpeed > 0) {
-                    rrSpeed = normalSpeed;
-                    rrMotor.setPower(rrSpeed + accelerationSpeed * b);
-                } else if (rrSpeed < 0) {
-                    rrSpeed = -normalSpeed;
-                    rrMotor.setPower(rrSpeed - accelerationSpeed * b);
-                } else {
-                    rrMotor.setPower(0);
-                }
-            }
-        }
-        else {
-            if (rrSpeed > 0) {
-                rrMotor.setPower(rrSpeed + accelerationSpeed * b);
-            } else if (rrSpeed < 0) {
-                rrMotor.setPower(rrSpeed - accelerationSpeed * b);
-            } else {
-                rrMotor.setPower(0);
-            }
-        }
         telemetry.addData("LF", lfMotor.getPower());
         telemetry.addData("LR", lrMotor.getPower());
         telemetry.addData("RF", rfMotor.getPower());

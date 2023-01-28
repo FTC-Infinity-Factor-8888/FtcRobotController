@@ -201,8 +201,8 @@ public class PowerPlayRobot implements iRobot {
         telemetry.update();
     }
 
-    public SignalLocation getSignalLocation() {
-        return signalDetector.getSignalLocation();
+    public SignalLocation getZoneOfInterest() {
+        return signalDetector.getZoneOfInterest();
     }
 
 

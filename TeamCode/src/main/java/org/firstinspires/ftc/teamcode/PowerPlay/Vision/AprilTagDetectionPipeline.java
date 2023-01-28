@@ -22,7 +22,6 @@ package org.firstinspires.ftc.teamcode.PowerPlay.Vision;
  */
 
 
-import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
 import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_1;
 import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_2;
 import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_3;
@@ -46,7 +45,7 @@ import java.util.ArrayList;
 class AprilTagDetectionPipeline extends OpenCvPipeline
 {
     private long nativeApriltagPtr;
-    private Mat grey = new Mat();
+    private final Mat grey = new Mat();
     private ArrayList<AprilTagDetection> detections = new ArrayList<>();
 
     private ArrayList<AprilTagDetection> detectionsUpdate = new ArrayList<>();
@@ -57,7 +56,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
     private final Object zoneDetectionsSync = new Object();
     private SignalLocation zoneOfInterest = null;
 
-    private SignalLocation zoneDetections = zoneOfInterest;
+    private SignalLocation zoneDetected = zoneOfInterest;
     private int numFramesWithoutDetection = 0;
 
     private final float DECIMATION_HIGH = 3;
@@ -137,40 +136,41 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         // Run AprilTag
         detections = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagsize, fx, fy, cx, cy);
 
-        //TODO: Dave review numFramesWithoutDetection
         if (detections != null && detections.size() != 0) {
-            boolean tagFound = false;
 
             for (AprilTagDetection tag : detections) {
                 if (tag.id == SignalDetector.ID_TAG_ZONE_1) {
-
                     zoneOfInterest = ZONE_1;
-                    numFramesWithoutDetection = 0;
                     break;
                 }
                 if (tag.id == SignalDetector.ID_TAG_ZONE_2) {
-
                     zoneOfInterest = ZONE_2;
-                    numFramesWithoutDetection = 0;
                     break;
                 }
                 if (tag.id == SignalDetector.ID_TAG_ZONE_3) {
                     zoneOfInterest = ZONE_3;
-                    numFramesWithoutDetection = 0;
                     break;
                 }
             }
-                if (zoneOfInterest == null){
-                    numFramesWithoutDetection++;
+            if (detections.size() == 0) {
+                numFramesWithoutDetection++;
 
-                    // If we haven't seen a tag for a few frames, lower the decimation
-                    // so we can hopefully pick one up if we're e.g. far back
-                    if(numFramesWithoutDetection >= THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION)
-                    {
-                        setDecimation(DECIMATION_LOW);
-                    }
+                // If we haven't seen a tag for a few frames, lower the decimation
+                // so we can hopefully pick one up if we're e.g. far back
+                if (numFramesWithoutDetection >= THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION) {
+                    setDecimation(DECIMATION_LOW);
+                }
+            }
+            else{
+                numFramesWithoutDetection = 0;
+                // If the target is within 1 meter, turn on high decimation to
+                // increase the frame rate
+                if(detections.get(0).pose.z < THRESHOLD_HIGH_DECIMATION_RANGE_METERS)
+                {
+                    setDecimation(DECIMATION_HIGH);
                 }
 
+            }
         }
 
         synchronized (detectionsUpdateSync)
@@ -178,9 +178,8 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
             detectionsUpdate = detections;
         }
 
-        //TODO: Dave review sync format
         synchronized (zoneDetectionsSync){
-            zoneDetections = zoneOfInterest;
+            zoneDetected = zoneOfInterest;
 
         }
 
@@ -217,12 +216,12 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         }
     }
 
-    //TODO: Dave check
     public SignalLocation getZoneDetections(){
         synchronized (zoneDetectionsSync){
-            SignalLocation ret = zoneDetections;
-            zoneDetections = null;
+            SignalLocation ret = zoneDetected;
+            zoneDetected = null;
             return ret;
+
 
 
         }

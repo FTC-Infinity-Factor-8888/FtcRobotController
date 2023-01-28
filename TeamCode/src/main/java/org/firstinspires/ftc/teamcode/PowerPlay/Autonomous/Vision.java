@@ -25,7 +25,7 @@ public class Vision extends LinearOpMode {
 
         waitForStart();
         if(opModeIsActive()) {
-            SignalLocation zone = ewok.getSignalLocation();
+            SignalLocation zone = ewok.getZoneOfInterest();
 
             if (zone == ZONE_1) {
                 ewok.drive(28);

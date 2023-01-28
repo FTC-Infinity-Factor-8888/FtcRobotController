@@ -60,6 +60,7 @@ public class SignalDetector {
         });
     }
 
+    /*
     public SignalLocation getSignalLocation() {
         ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
 
@@ -89,6 +90,7 @@ public class SignalDetector {
         }
         return zoneOfInterest;
     }
+     */
 
 
     //TODO: Dave review

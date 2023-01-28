@@ -22,6 +22,11 @@ package org.firstinspires.ftc.teamcode.PowerPlay.Vision;
  */
 
 
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_1;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_2;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_3;
+
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -45,7 +50,21 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
     private ArrayList<AprilTagDetection> detections = new ArrayList<>();
 
     private ArrayList<AprilTagDetection> detectionsUpdate = new ArrayList<>();
+
+
     private final Object detectionsUpdateSync = new Object();
+
+    private final Object zoneDetectionsSync = new Object();
+    private SignalLocation zoneOfInterest = null;
+
+    private SignalLocation zoneDetections = zoneOfInterest;
+    private int numFramesWithoutDetection = 0;
+
+    private final float DECIMATION_HIGH = 3;
+    private final float DECIMATION_LOW = 2;
+
+    private final float THRESHOLD_HIGH_DECIMATION_RANGE_METERS = 1.0f;
+    private final float THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION = 20;
 
     Mat cameraMatrix;
 
@@ -118,9 +137,51 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         // Run AprilTag
         detections = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagsize, fx, fy, cx, cy);
 
+        //TODO: Dave review numFramesWithoutDetection
+        if (detections != null && detections.size() != 0) {
+            boolean tagFound = false;
+
+            for (AprilTagDetection tag : detections) {
+                if (tag.id == SignalDetector.ID_TAG_ZONE_1) {
+
+                    zoneOfInterest = ZONE_1;
+                    numFramesWithoutDetection = 0;
+                    break;
+                }
+                if (tag.id == SignalDetector.ID_TAG_ZONE_2) {
+
+                    zoneOfInterest = ZONE_2;
+                    numFramesWithoutDetection = 0;
+                    break;
+                }
+                if (tag.id == SignalDetector.ID_TAG_ZONE_3) {
+                    zoneOfInterest = ZONE_3;
+                    numFramesWithoutDetection = 0;
+                    break;
+                }
+            }
+                if (zoneOfInterest == null){
+                    numFramesWithoutDetection++;
+
+                    // If we haven't seen a tag for a few frames, lower the decimation
+                    // so we can hopefully pick one up if we're e.g. far back
+                    if(numFramesWithoutDetection >= THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION)
+                    {
+                        setDecimation(DECIMATION_LOW);
+                    }
+                }
+
+        }
+
         synchronized (detectionsUpdateSync)
         {
             detectionsUpdate = detections;
+        }
+
+        //TODO: Dave review sync format
+        synchronized (zoneDetectionsSync){
+            zoneDetections = zoneOfInterest;
+
         }
 
         // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
@@ -153,6 +214,17 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
             ArrayList<AprilTagDetection> ret = detectionsUpdate;
             detectionsUpdate = null;
             return ret;
+        }
+    }
+
+    //TODO: Dave check
+    public SignalLocation getZoneDetections(){
+        synchronized (zoneDetectionsSync){
+            SignalLocation ret = zoneDetections;
+            zoneDetections = null;
+            return ret;
+
+
         }
     }
 
@@ -285,6 +357,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
 
         return pose;
     }
+}
 
     /*
      * A simple container to hold both rotation and translation
@@ -307,4 +380,4 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
             this.tvec = tvec;
         }
     }
-}
+

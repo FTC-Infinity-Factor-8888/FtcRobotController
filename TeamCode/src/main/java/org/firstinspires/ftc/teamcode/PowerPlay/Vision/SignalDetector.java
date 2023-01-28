@@ -50,7 +50,7 @@ public class SignalDetector {
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                camera.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming(800, 448, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override
@@ -87,6 +87,13 @@ public class SignalDetector {
                 }
             }
         }
+        return zoneOfInterest;
+    }
+
+
+    //TODO: Dave review
+    public SignalLocation getZoneOfInterest(){
+        SignalLocation zoneOfInterest = aprilTagDetectionPipeline.getZoneDetections();
         return zoneOfInterest;
     }
 

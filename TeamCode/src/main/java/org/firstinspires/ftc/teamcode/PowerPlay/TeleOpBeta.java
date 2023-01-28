@@ -41,7 +41,7 @@ public class TeleOpBeta extends LinearOpMode {
         double rotateInput;
         double accelerator; // A magnitude of acceleration
         double decelerator; // A magnitude of deceleration
-        double accelerationVector; // An acceleration with direction
+        double boostDirection; // Tells drive function whether to decelerate or accelerate.
 
         int direction = 1;
 
@@ -81,7 +81,7 @@ public class TeleOpBeta extends LinearOpMode {
                 wristUp = gamepad2.dpad_up;
                 wristDown = gamepad2.dpad_down;
                 wristMiddle = gamepad2.dpad_right;
-                wristPosition = gamepad2.left_stick_y;
+                wristPosition = -gamepad2.left_stick_y;  // The joysticks are inverted to make up the positive direction and down the negative direction
                 setWristPosition = gamepad2.x;
 
                 // Drive inversion code
@@ -99,10 +99,18 @@ public class TeleOpBeta extends LinearOpMode {
                 }
 
                 // Drive code
-                if (accelerator != 0 && decelerator == 0) {accelerationVector = accelerator;}
-                else if (accelerator == 0 && decelerator != 0) {accelerationVector = -decelerator;}
-                else {accelerationVector = 0;}
-                r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerationVector);
+                if (accelerator != 0 && decelerator == 0) {  // Accelerate
+                    r2.driveXYRB(strafeInput, forwardInput, rotateInput, accelerator, 1.0);
+                    telemetry.addData("Acceleration","accelerating");
+                }
+                else if (accelerator == 0 && decelerator != 0) {  // Decelerate
+                    r2.driveXYRB(strafeInput, forwardInput, rotateInput, decelerator, -1.0);
+                    telemetry.addData("Acceleration", "decelerating");
+                }
+                else {  // If both triggers are pressed, don't accelerate in either direction
+                    r2.driveXYRB(strafeInput, forwardInput, rotateInput, 0.0, 1.0);
+                    telemetry.addData("Acceleration", "null");
+                }
 
                 // Lift code
                 if (liftUp && !liftDown) {

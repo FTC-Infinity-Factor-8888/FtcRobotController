@@ -693,27 +693,26 @@ public class PowerPlayRobot implements iRobot {
      * @param motorSpeed the speed of a motor before acceleration or deceleration has been applied
      * @param percentAcceleration the percent of acceleration or deceleration that a motor will use. This value should be acquired from a gamepad. Positive value for acceleration, negative for deceleration.
      */
-    private void setPowerWithAcceleration(DcMotorEx motor, double motorSpeed, double percentAcceleration) {
+    private void setPowerWithAcceleration(DcMotorEx motor, double motorSpeed, double percentAcceleration, double accelerationDirection) {
         // The acceleration speed set on normal speed.
-        double accelerationSpeed = MAX_ROBOT_SPEED - NORMAL_ROBOT_SPEED;
-        double decelerationSpeed = MIN_ROBOT_SPEED - NORMAL_ROBOT_SPEED;
-        double addendSpeed;
+        double accelerationSpeed = 0.0;
+        if (accelerationDirection == -1.0) {
+            accelerationSpeed = MIN_ROBOT_SPEED - NORMAL_ROBOT_SPEED;
+        }
+        else if (accelerationDirection == 1.0) {
+            accelerationSpeed = MAX_ROBOT_SPEED - NORMAL_ROBOT_SPEED;
+        }
 
-        if (percentAcceleration > 0) {addendSpeed = accelerationSpeed;}
-        else if (percentAcceleration < 0) {addendSpeed = decelerationSpeed;}
-        else {addendSpeed = 0;}
-        percentAcceleration = Math.abs(percentAcceleration); // Negative percentage is only to determine acceleration or deceleration. 
-
-        double projectedPower = Math.abs(motorSpeed) + addendSpeed * percentAcceleration;
+        double projectedPower = Math.abs(motorSpeed) + (accelerationSpeed * percentAcceleration);
         if (projectedPower > MAX_ROBOT_SPEED || projectedPower < MIN_ROBOT_SPEED) {
             if (Math.abs(motorSpeed) > NORMAL_ROBOT_SPEED) {
                 if (motorSpeed > 0) {
                     motorSpeed = NORMAL_ROBOT_SPEED;
-                    motor.setPower(motorSpeed + addendSpeed * percentAcceleration);
+                    motor.setPower(motorSpeed + (accelerationSpeed * percentAcceleration));
                 }
                 else if (motorSpeed < 0) {
                     motorSpeed = -NORMAL_ROBOT_SPEED;
-                    motor.setPower(motorSpeed - addendSpeed * percentAcceleration);
+                    motor.setPower(motorSpeed - (accelerationSpeed * percentAcceleration));
                 }
                 else {
                     motor.setPower(0);
@@ -722,11 +721,11 @@ public class PowerPlayRobot implements iRobot {
             else if (Math.abs(motorSpeed) < MIN_ROBOT_SPEED) {
                 if (motorSpeed > 0) {
                     motorSpeed = MIN_ROBOT_SPEED;
-                    motor.setPower(motorSpeed + addendSpeed * percentAcceleration);
+                    motor.setPower(motorSpeed + (accelerationSpeed * percentAcceleration));
                 }
                 else if (motorSpeed < 0) {
                     motorSpeed = -MIN_ROBOT_SPEED;
-                    motor.setPower(motorSpeed - addendSpeed * percentAcceleration);
+                    motor.setPower(motorSpeed - (accelerationSpeed * percentAcceleration));
                 }
                 else {
                     motor.setPower(0);
@@ -735,10 +734,10 @@ public class PowerPlayRobot implements iRobot {
         }
         else {
             if (motorSpeed > 0) {
-                motor.setPower(motorSpeed + addendSpeed * percentAcceleration);
+                motor.setPower(motorSpeed + (accelerationSpeed * percentAcceleration));
             }
             else if (motorSpeed < 0) {
-                motor.setPower(motorSpeed - addendSpeed * percentAcceleration);
+                motor.setPower(motorSpeed - (accelerationSpeed * percentAcceleration));
             }
             else {
                 motor.setPower(0);
@@ -747,7 +746,7 @@ public class PowerPlayRobot implements iRobot {
     }
 
     @Override
-    public void driveXYRB(double x, double y, double r, double b) {
+    public void driveXYRB(double x, double y, double r, double b, double bd) {
         /*
             Because we use Mecanum wheels, we can move forward, rotate, and strafe.
             Here, we are taking into account the direction each wheel should travel at in
@@ -759,10 +758,10 @@ public class PowerPlayRobot implements iRobot {
         double rrSpeed = -((y - x + r) * NORMAL_ROBOT_SPEED);  // Right Rear motor speed.
 
         // Calculates and sets power based on its arguments
-        setPowerWithAcceleration(lfMotor, lfSpeed, b);
-        setPowerWithAcceleration(rfMotor, rfSpeed, b);
-        setPowerWithAcceleration(lrMotor, lrSpeed, b);
-        setPowerWithAcceleration(rrMotor, rrSpeed, b);
+        setPowerWithAcceleration(lfMotor, lfSpeed, b, bd);
+        setPowerWithAcceleration(rfMotor, rfSpeed, b, bd);
+        setPowerWithAcceleration(lrMotor, lrSpeed, b, bd);
+        setPowerWithAcceleration(rrMotor, rrSpeed, b, bd);
 
         telemetry.addData("LF", lfMotor.getPower());
         telemetry.addData("LR", lrMotor.getPower());

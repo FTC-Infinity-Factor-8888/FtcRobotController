@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.Color;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.EmergencyStopException;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
+import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LiftPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
 import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
@@ -385,6 +386,27 @@ public class PowerPlayRobot implements iRobot {
         }
         wristServo.setPosition(position);
     }
+
+    public void liftMotorAuto(LiftPosition liftPosition) {
+    }
+
+    switch (LiftPosition)
+
+    case GROUND;
+        position = 0;
+        break;
+
+        case LOW:
+    position = 1;
+        break;
+
+        case MEDIUM:
+    position = 2;
+        break;
+
+        case HIGH:
+    position = 3;
+        break;
 
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards

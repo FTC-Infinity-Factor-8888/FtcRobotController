@@ -23,8 +23,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
-import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
-import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalDetector;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation;
 
 public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
@@ -188,6 +188,7 @@ public class PowerPlayRobot implements iRobot {
                 lfMotor.getPower(), lrMotor.getPower(), rfMotor.getPower(), rrMotor.getPower());
         telemetry.addData("LiftPosition", liftMotor.getCurrentPosition());
         telemetry.addData("Potentiometer", getPotentiometer());
+        telemetry.addData("GrabberPosition", intakeServo.getPosition());
         telemetry.addData("LiftPower", liftMotor.getPower());
         telemetry.addData("LimitSwitch", limitSwitch.isPressed());
 

@@ -41,7 +41,8 @@ public class TeleOpBeta extends LinearOpMode {
         double rotateInput;
         double accelerator; // A magnitude of acceleration
         double decelerator; // A magnitude of deceleration
-        double boostDirection; // Tells drive function whether to decelerate or accelerate.
+
+        double liftPower;
 
         int direction = 1;
 
@@ -83,6 +84,8 @@ public class TeleOpBeta extends LinearOpMode {
                 wristMiddle = gamepad2.dpad_right;
                 wristPosition = -gamepad2.left_stick_y;  // The joysticks are inverted to make up the positive direction and down the negative direction
                 setWristPosition = gamepad2.x;
+
+                liftPower = -gamepad2.right_stick_y;
 
                 // Drive inversion code
                 if (lb && rb) {
@@ -127,6 +130,8 @@ public class TeleOpBeta extends LinearOpMode {
                     r2.liftMotorStop();
                 }
 
+                r2.liftMotor(liftPower);
+
                 // Intake code
                 if (intake && !outtake) {
                     r2.intakeMotor(IntakePosition.IN);
@@ -157,8 +162,6 @@ public class TeleOpBeta extends LinearOpMode {
                 /* Here we show values on the driver hub that may be useful to know while driving
                 the robot or during testing. */
                 r2.telemetryDashboard("");
-                telemetry.addData("Accelerator", accelerator);
-                telemetry.addData("Decelerator", decelerator);
                 telemetry.update();
             }
         }

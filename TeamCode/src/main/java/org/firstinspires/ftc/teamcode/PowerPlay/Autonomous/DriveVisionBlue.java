@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
 import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation;
 
 // Put the cone in the blue robot butt and point it to where you want to go
-@Autonomous (name = "Vision")
-public class Vision extends LinearOpMode {
+@Autonomous (name = "VisionBlue")
+public class DriveVisionBlue extends LinearOpMode {
     PowerPlayRobot ewok;
     SignalDetector vision;
     @Override

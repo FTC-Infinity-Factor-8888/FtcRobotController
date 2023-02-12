@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.PowerPlayRobot;
 import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalDetector;
 import org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation;
 
-// Put the cone in the blue robot butt and point it to where you want to go
-@Autonomous (name = "VisionBlue")
+// Put the cone on the robot's left side
+@Autonomous (name = "VisionBlue-ConeOnLeft")
 public class DriveVisionBlue extends LinearOpMode {
     PowerPlayRobot ewok;
     SignalDetector vision;
@@ -41,7 +41,7 @@ public class DriveVisionBlue extends LinearOpMode {
                 ewok.strafe(-24);
             }
             else {
-                ewok.strafe(20);
+                ewok.strafe(-29);
             }
         }
     }

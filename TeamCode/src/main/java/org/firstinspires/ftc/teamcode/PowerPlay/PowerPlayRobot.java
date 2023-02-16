@@ -388,25 +388,27 @@ public class PowerPlayRobot implements iRobot {
     }
 
     public void liftMotorAuto(LiftPosition liftPosition) {
+
+        switch (LiftPosition) {
+
+            case GROUND:
+                position = 0;
+                break;
+
+            case LOW:
+                position = 1;
+                break;
+
+            case MEDIUM:
+                position = 2;
+                break;
+
+            case HIGH:
+                position = 3;
+                break;
+        }
+
     }
-
-    switch (LiftPosition)
-
-    case GROUND;
-        position = 0;
-        break;
-
-        case LOW:
-    position = 1;
-        break;
-
-        case MEDIUM:
-    position = 2;
-        break;
-
-        case HIGH:
-    position = 3;
-        break;
 
     /**
      * @param distance Distance the robot should travel in inches, positive for forwards, negative for backwards

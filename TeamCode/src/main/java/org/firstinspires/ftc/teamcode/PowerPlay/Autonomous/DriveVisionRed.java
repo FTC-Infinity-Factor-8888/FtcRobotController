@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags.SignalDetector;
 import org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags.SignalLocation;
 
 // Put the on the RIGHT side of the robot
-@Autonomous (name = "VisionRed-ConeOnRight")
+@Autonomous (name = "VisionRed-ConeOnLeft")
 public class DriveVisionRed extends LinearOpMode {
     PowerPlayRobot ewok;
     SignalDetector vision;

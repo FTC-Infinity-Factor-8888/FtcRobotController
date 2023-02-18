@@ -54,11 +54,12 @@ public class PowerPlayRobot implements iRobot {
     private SignalDetector signalDetector;
 
     private final double MAX_ROBOT_SPEED = 0.80; // The maximum speed we want our robot to drive at.
-    private final double NORMAL_ROBOT_SPEED = 0.65; // The normal speed we want our robot to drive at.
+    private final double NORMAL_ROBOT_SPEED = 0.60; // The normal speed we want our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
-    private final double MIN_ROBOT_SPEED = 0.40; // The minimum speed we can have our robot to drive at.
+    private final double MIN_ROBOT_SPEED = 0.10; // The minimum speed we can have our robot to drive at.
     @SuppressWarnings("FieldCanBeLocal")
     private final double correctionSpeed = 0.1;
+
 
     private final double wheelCircumferenceInInches = (96 / 25.4) * Math.PI;
     // TODO: PIDF values must be updated to work for this year.
@@ -768,6 +769,24 @@ public class PowerPlayRobot implements iRobot {
         telemetry.addData("LR", lrMotor.getPower());
         telemetry.addData("RF", rfMotor.getPower());
         telemetry.addData("RR", rrMotor.getPower());
+    }
+
+    public void teleOpTestDrive(double x, double y, double r) {
+        double lfSpeed = -((y - x - r) * NORMAL_ROBOT_SPEED);  // Left Front motor speed.
+        double rfSpeed = -((y + x + r) * NORMAL_ROBOT_SPEED);  // Right Front motor speed.
+        double lrSpeed = -((y + x - r) * NORMAL_ROBOT_SPEED);  // Left Rear motor speed.
+        double rrSpeed = -((y - x + r) * NORMAL_ROBOT_SPEED);  // Right Rear motor speed.
+
+        lfMotor.setPower(lfSpeed);
+        rfMotor.setPower(rfSpeed);
+        lrMotor.setPower(lrSpeed);
+        rrMotor.setPower(rrSpeed);
+
+        telemetry.addData("LF", lfMotor.getPower());
+        telemetry.addData("RF", rfMotor.getPower());
+        telemetry.addData("LR", lrMotor.getPower());
+        telemetry.addData("RR", rrMotor.getPower());
+        telemetry.update();
     }
 
     @Override

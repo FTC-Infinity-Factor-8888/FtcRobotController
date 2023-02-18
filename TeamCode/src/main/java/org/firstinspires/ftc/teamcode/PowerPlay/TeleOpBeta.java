@@ -85,7 +85,7 @@ public class TeleOpBeta extends LinearOpMode {
                 wristPosition = -gamepad2.left_stick_y;  // The joysticks are inverted to make up the positive direction and down the negative direction
                 setWristPosition = gamepad2.x;
 
-                liftPower = gamepad2.right_stick_y;
+                liftPower = -gamepad2.right_stick_y;
 
                 // Drive inversion code
                 if (lb && rb) {

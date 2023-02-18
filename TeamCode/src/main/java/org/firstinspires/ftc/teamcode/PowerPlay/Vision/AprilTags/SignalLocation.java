@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags;
+package org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags;
 
 public enum SignalLocation {
     ZONE_1,

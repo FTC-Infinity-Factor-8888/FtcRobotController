@@ -23,8 +23,8 @@ import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.IntakePosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.LED;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.WristPosition;
 import org.firstinspires.ftc.teamcode.PowerPlay.Utilities.iRobot;
-import org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalDetector;
-import org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags.SignalDetector;
+import org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags.SignalLocation;
 
 public class PowerPlayRobot implements iRobot {
     private final LinearOpMode creator;
@@ -171,7 +171,7 @@ public class PowerPlayRobot implements iRobot {
         telemetry.update();
     }
 
-    private double getPotentiometer() {
+    public double getPotentiometer() {
         return potentiometer.getVoltage();
     }
 

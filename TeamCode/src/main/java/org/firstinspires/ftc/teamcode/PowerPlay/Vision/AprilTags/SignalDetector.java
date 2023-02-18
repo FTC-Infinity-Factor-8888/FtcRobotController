@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags;
+package org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 

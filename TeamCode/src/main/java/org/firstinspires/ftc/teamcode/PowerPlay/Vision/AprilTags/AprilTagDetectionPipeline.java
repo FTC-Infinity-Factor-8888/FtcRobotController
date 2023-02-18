@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags;
+package org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags;
 
 /*
  * Copyright (c) 2021 OpenFTC Team
@@ -22,9 +22,9 @@ package org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags;
  */
 
 
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation.ZONE_1;
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation.ZONE_2;
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation.ZONE_3;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags.SignalLocation.ZONE_1;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags.SignalLocation.ZONE_2;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.AprilTags.SignalLocation.ZONE_3;
 
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;

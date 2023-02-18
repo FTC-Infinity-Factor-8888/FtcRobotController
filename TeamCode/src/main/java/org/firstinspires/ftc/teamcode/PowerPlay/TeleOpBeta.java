@@ -141,7 +141,10 @@ public class TeleOpBeta extends LinearOpMode {
                 }
 
                 // Wrist presets code
-                if (wristUp && !wristDown && !wristMiddle) {
+                if (r2.getPotentiometer() <= 1.195 && r2.getPotentiometer() >=  0.934) {
+                    r2.wristMotor(WristPosition.MIDDLE);
+                }
+                else if (wristUp && !wristDown && !wristMiddle) {
                     r2.wristMotor(WristPosition.UP);
                 }
                 else if (!wristUp && wristDown && !wristMiddle) {

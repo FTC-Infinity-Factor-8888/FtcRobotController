@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.PowerPlay.Vision;
+package org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags;
 /*
  * Copyright (c) 2021 OpenFTC Team
  *
@@ -20,9 +20,9 @@ package org.firstinspires.ftc.teamcode.PowerPlay.Vision;
  * SOFTWARE.
  */
 
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_1;
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_2;
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_3;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation.ZONE_1;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation.ZONE_2;
+import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags.SignalLocation.ZONE_3;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;

@@ -1,8 +1,4 @@
-package org.firstinspires.ftc.teamcode.PowerPlay.Vision;
-
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_1;
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_2;
-import static org.firstinspires.ftc.teamcode.PowerPlay.Vision.SignalLocation.ZONE_3;
+package org.firstinspires.ftc.teamcode.PowerPlay.Vision.ArpilTags;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -11,8 +7,6 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import java.util.ArrayList;
 
 
 public class SignalDetector {
